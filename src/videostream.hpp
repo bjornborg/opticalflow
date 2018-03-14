@@ -22,5 +22,5 @@ public:
   cv::Mat GetPreviousFrame();
   cv::Mat GetCurrentFrame();
   void SetCurrentFrame(cv::Mat);
-
+  
 };

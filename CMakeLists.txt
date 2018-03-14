@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.2)
 
+find_program(CCACHE_FOUND ccache)
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
+
 project(opticalflow)
 
 
@@ -52,9 +59,12 @@ include_directories(${Eigen3_INCLUDE_DIRS})
 # Gather all object code first to avoid double compilation.
 add_library(${PROJECT_NAME}-core OBJECT 
 ${CMAKE_CURRENT_SOURCE_DIR}/src/videostream.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/pso.cpp)
+${CMAKE_CURRENT_SOURCE_DIR}/src/pso.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/objectivefunction.cpp)
+
 
 set(LIBRARIES Threads::Threads ${OpenCV_LIBS} ${Eigen3_LIBS})
+
 
 ################################################################################
 # Create executable.

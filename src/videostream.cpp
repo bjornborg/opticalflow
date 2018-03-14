@@ -47,7 +47,7 @@ void VideoStream::Draw()
   if (!m_previousFrame.empty()) {
     cv::imshow(m_window + "-previous", m_previousFrame);
   }
-  cv::waitKey();
+  cv::waitKey(1);
 }
 
 uint32_t VideoStream::GetFrameCounter()
@@ -67,5 +67,6 @@ cv::Mat VideoStream::GetCurrentFrame()
 
 void VideoStream::SetCurrentFrame(cv::Mat a_mat)
 {
+  m_currentFrame.release();
   m_currentFrame = a_mat;
 }
