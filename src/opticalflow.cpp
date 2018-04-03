@@ -3,7 +3,6 @@
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include <iostream>
 
 OpticalFlow::OpticalFlow(
     cv::Mat a_prevFrameCv, 
@@ -38,16 +37,19 @@ void OpticalFlow::SetNewFrame(cv::Mat a_newFrameCv)
   m_currentFrameCv = a_newFrameCv.clone();
   *m_prevFrame = *m_currentFrame;
   *m_currentFrame = *std::make_shared<std::vector<Eigen::MatrixXi>>(CvBgr2Eigen(a_newFrameCv)); 
+  for (uint32_t i = 0; i < m_psoVec.size(); i++) {
+    m_psoVec.at(i).Reset();
+  }
 }
 
 std::vector<Eigen::Vector2i> OpticalFlow::GetOpticalFlow()
 {
-  std::cout << "Pso size: " << m_psoVec.size() << std::endl;
-  std::cout << "m_currentFlowVec size: " << m_currentFlowVec.size() << std::endl;
+  #pragma omp parallel for
   for (uint32_t i = 0; i < m_psoVec.size(); i++) {
     for (uint32_t n = 0; n < MAX_ITERATION; n++) {
       m_psoVec.at(i).Step();
     }
+
     m_currentFlowVec.at(i) = m_psoVec.at(i).GetFlowVector();
   }
   return m_currentFlowVec;
@@ -61,7 +63,7 @@ std::vector<Eigen::MatrixXi> OpticalFlow::CvBgr2Eigen(cv::Mat a_cvMat)
   for (uint8_t i = 0; i < 3; i++) {
     Eigen::MatrixXi eigMat;
     cv::cv2eigen(colorChannels[i], eigMat);
-    vectorEigenMat.push_back(eigMat);
+    vectorEigenMat.push_back(eigMat.transpose().eval());
   }
   return std::vector<Eigen::MatrixXi>(vectorEigenMat);
 }
@@ -72,7 +74,7 @@ cv::Mat OpticalFlow::Eigen2CvBgr(std::vector<Eigen::MatrixXi> a_vectorEigenMat)
 
   for (uint8_t i = 0; i < 3; i++) {
     cv::Mat cvMatColor;
-    cv::eigen2cv(a_vectorEigenMat.at(i), cvMatColor);
+    cv::eigen2cv(a_vectorEigenMat.at(i).transpose().eval(), cvMatColor);
     colorChannels.push_back(cvMatColor);
   }
   cv::Mat cvMatBgr;
@@ -95,10 +97,10 @@ void OpticalFlow::DrawOpticalFlow()
   cv::Mat frame = m_currentFrameCv.clone();
   for (uint32_t i = 0; i < endPointVec.size(); i++) {
     cv::Point start(m_flowOriginVec[i](0), m_flowOriginVec[i](1));
-    cv::Point end(endPointVec[i](1), endPointVec[i](0));
+    cv::Point end(endPointVec[i](0), endPointVec[i](1));
     cv::arrowedLine(frame, start, end, color , thickness, lineType, shift, tipLength);
   }
   m_vStream.SetCurrentFrame(frame);
   m_vStream.Draw();
-  cv::waitKey();
+  cv::waitKey(1);
 }

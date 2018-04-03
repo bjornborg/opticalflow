@@ -138,7 +138,7 @@ Pso::Pso(
   , m_randGen()
   , m_vMax()
   , m_aMax()
-  , m_swarmBestPerformance(std::numeric_limits<double>::max())
+  , m_swarmBestPerformance()
   , m_swarmBestPosition()
   , m_kernelSize(a_kernelSize)
 {
@@ -146,13 +146,12 @@ Pso::Pso(
   m_randGen = std::default_random_engine(r());
   m_vMax = 5;
   m_aMax = 20;
-  m_swarmBestPosition = m_swarmBestPosition.Zero();
 
   ObjectiveFunction objFun(a_prevImg, a_currentImg, a_origin, a_kernelSize);
   for (uint32_t i = 0; i < m_numBoids; i++) {
     m_boids.emplace_back(objFun);
   }
-  ScrambleNormal();
+  Reset();
 }
 
 Pso::~Pso()
@@ -301,10 +300,10 @@ Eigen::Vector2i Pso::GetFlowVector() const
   return m_swarmBestPosition - m_origin;
 }
 
-void Pso::SetCurrentFrame(std::shared_ptr<std::vector<Eigen::MatrixXi>> a_newFrame)
+void Pso::Reset()
 {
-  *m_prevImg = *m_currentImg;
-  *m_currentImg = *a_newFrame;
+  m_swarmBestPerformance = std::numeric_limits<double>::max();
+  m_swarmBestPosition = m_swarmBestPosition.Zero();
   for (uint32_t i = 0; i < m_numBoids; i++) {
     m_boids[i].Reset();
   }

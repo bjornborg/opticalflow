@@ -16,7 +16,7 @@ class OpticalFlow
     std::vector<Eigen::Vector2i> m_flowOriginVec;
     std::vector<Eigen::Vector2i> m_currentFlowVec;
     VideoStream m_vStream;
-    uint32_t const MAX_ITERATION = 500;
+    uint32_t const MAX_ITERATION = 400;
 
     std::vector<Eigen::MatrixXi> CvBgr2Eigen(cv::Mat);
     cv::Mat Eigen2CvBgr(std::vector<Eigen::MatrixXi>);

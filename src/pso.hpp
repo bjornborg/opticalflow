@@ -86,5 +86,5 @@ public:
   double GetSwarmBestPerformance() const;
   Eigen::Vector2i GetSwarmBestPosition() const;
   Eigen::Vector2i GetFlowVector() const;
-  void SetCurrentFrame(std::shared_ptr<std::vector<Eigen::MatrixXi>>);
+  void Reset();
 };
