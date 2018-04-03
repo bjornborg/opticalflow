@@ -1,9 +1,7 @@
-#include <eigen3/Eigen/Dense>
-#include <opencv2/core.hpp>
 #include <random>
 #include <vector>
 #include <utility> 
-
+#include <opencv2/core.hpp>
 #include <objectivefunction.hpp>
 
 class Boid
@@ -23,6 +21,10 @@ private:
 public:
   Boid(ObjectiveFunction const);
   ~Boid();
+  Boid(const Boid &) = default;
+  Boid(Boid &&) = default;
+  Boid &operator=(const Boid &) = default;
+  Boid &operator=(Boid &&) = default;
   void Reset();
   Eigen::Vector2i GetPosition() const;
   Eigen::Vector2d GetVelocity() const;
@@ -43,12 +45,11 @@ public:
 class Pso
 {
 private:
-  std::vector<Eigen::MatrixXi> m_prevImg;
-  std::vector<Eigen::MatrixXi> m_currentImg;
+  std::shared_ptr<std::vector<Eigen::MatrixXi>> m_prevImg;
+  std::shared_ptr<std::vector<Eigen::MatrixXi>> m_currentImg;
   Eigen::Vector2i m_origin;
   uint32_t m_numBoids;
   std::vector<Boid> m_boids;
-  Eigen::Vector2i m_bounds;
   Eigen::Vector2d m_constants;
   std::default_random_engine m_randGen;
   double m_vMax;
@@ -62,24 +63,28 @@ private:
   void UpdateAcceleration();
   void CheckVelocity();
   void CrazyCheck();
-  Boid RandomizeBoidUniform(Boid);
 
 public:
-  Pso(std::vector<Eigen::MatrixXi>  const,
-      std::vector<Eigen::MatrixXi>  const,
+  Pso(std::shared_ptr<std::vector<Eigen::MatrixXi>> ,
+      std::shared_ptr<std::vector<Eigen::MatrixXi>> ,
       Eigen::Vector2i,
       uint32_t, 
-      Eigen::Vector2i, 
       Eigen::Vector2d, 
       Eigen::Vector2i);
   ~Pso();
+  Pso(const Pso &) = default;
+  Pso(Pso &&) = default;
+  Pso &operator=(const Pso &) = default;
+  Pso &operator=(Pso &&) = default;
   void Print();
 
-  cv::Mat GetFrame() const;
   cv::Mat GetFrame(cv::Mat) const;
   void Step();
   std::string ToString();
-  void Scramble();
+  void ScrambleUniform();
+  void ScrambleNormal();
   double GetSwarmBestPerformance() const;
   Eigen::Vector2i GetSwarmBestPosition() const;
+  Eigen::Vector2i GetFlowVector() const;
+  void SetCurrentFrame(std::shared_ptr<std::vector<Eigen::MatrixXi>>);
 };

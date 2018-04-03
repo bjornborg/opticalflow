@@ -2,8 +2,7 @@
 #include <sstream>
 #include <limits>
 
-// #include "opencv2/highgui/highgui.hpp"
-#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <pso.hpp>
 
@@ -17,7 +16,7 @@ Boid::Boid(ObjectiveFunction a_objFun)
   , m_inertiaDecay()
   , m_objFun(a_objFun)
 {
-  m_inertiaDecay = 0.995;
+  m_inertiaDecay = 0.99;
   Reset();
 }
 
@@ -51,7 +50,7 @@ Eigen::Vector2d Boid::GetAcceleration() const
 
 void Boid::SetPosition(Eigen::Vector2i const a_pos)
 {
-  m_pos = a_pos;
+  m_pos = m_objFun.CheckBoundary(a_pos);
   m_currentPerformance = m_objFun.GetScore(m_pos);
   if (m_currentPerformance < m_bestPerformance.first) {
     m_bestPerformance = std::pair<double, Eigen::Vector2i>(m_currentPerformance, a_pos);
@@ -91,7 +90,7 @@ std::string Boid::ToString()
 void Boid::Step()
 {
   Eigen::Vector2i pos = (m_pos.cast<double>() + m_vel).array().round().cast<int32_t>();
-  Eigen::Vector2d vel = (m_inertia + 1) * m_vel + m_acc;
+  Eigen::Vector2d vel = (m_inertia + 0.7) * m_vel + m_acc;
   m_inertia =  m_inertia * m_inertiaDecay;
   SetPosition(pos);
   SetVelocity(vel);
@@ -123,11 +122,11 @@ Eigen::Vector2i Boid::GetBestPosition() const
   PSO
 */
 
-Pso::Pso(std::vector<Eigen::MatrixXi> const a_prevImg,
-      std::vector<Eigen::MatrixXi> const a_currentImg,
+Pso::Pso(
+      std::shared_ptr<std::vector<Eigen::MatrixXi>> a_prevImg,
+      std::shared_ptr<std::vector<Eigen::MatrixXi>> a_currentImg,
       Eigen::Vector2i a_origin, 
       uint32_t a_numBoids, 
-      Eigen::Vector2i a_bounds,
       Eigen::Vector2d a_constants, 
       Eigen::Vector2i a_kernelSize)
   : m_prevImg(a_prevImg)
@@ -135,7 +134,6 @@ Pso::Pso(std::vector<Eigen::MatrixXi> const a_prevImg,
   , m_origin(a_origin)
   , m_numBoids(a_numBoids)
   , m_boids()
-  , m_bounds(a_bounds)
   , m_constants(a_constants)
   , m_randGen()
   , m_vMax()
@@ -144,82 +142,63 @@ Pso::Pso(std::vector<Eigen::MatrixXi> const a_prevImg,
   , m_swarmBestPosition()
   , m_kernelSize(a_kernelSize)
 {
+  std::random_device r;
+  m_randGen = std::default_random_engine(r());
   m_vMax = 5;
   m_aMax = 20;
   m_swarmBestPosition = m_swarmBestPosition.Zero();
-  ObjectiveFunction const objFun(a_prevImg, a_currentImg, a_origin, a_kernelSize);
 
-  InitializeBoids(objFun);
-  Scramble();
+  ObjectiveFunction objFun(a_prevImg, a_currentImg, a_origin, a_kernelSize);
+  for (uint32_t i = 0; i < m_numBoids; i++) {
+    m_boids.emplace_back(objFun);
+  }
+  ScrambleNormal();
 }
 
 Pso::~Pso()
 {}
 
 
-void Pso::InitializeBoids(ObjectiveFunction const a_objFun)
-{
-  for (uint32_t i = 0; i < m_numBoids; i++) {
-    m_boids.push_back(Boid(a_objFun));
-  }
-}
-
 
 void Pso::UpdateAcceleration()
 {
   std::uniform_real_distribution<double> distribution(0, 1.0);
-
-  for (std::vector<Boid>::iterator it = m_boids.begin(); it != m_boids.end(); it++) {
-    Boid currentBoid = *it;
-    if (currentBoid.GetBestPerformance() < m_swarmBestPerformance) {
-      m_swarmBestPerformance = currentBoid.GetBestPerformance();
-      m_swarmBestPosition = currentBoid.GetBestPosition();
+  for (uint32_t i = 0; i < m_numBoids; i++) {
+    if (m_boids[i].GetBestPerformance() < m_swarmBestPerformance) {
+      m_swarmBestPerformance = m_boids[i].GetBestPerformance();
+      m_swarmBestPosition = m_boids[i].GetBestPosition();
     }
   }
-
-  for (std::vector<Boid>::iterator it = m_boids.begin(); it != m_boids.end(); it++) {
-    Boid currentBoid = *it;
+  for (uint32_t i = 0; i < m_numBoids; i++) {
     double r = distribution(m_randGen);
     double q = distribution(m_randGen);
     Eigen::Vector2i cognitiveAcc = Eigen::Vector2i::Zero();
     Eigen::Vector2i socialAcc = Eigen::Vector2i::Zero();
 
-    cognitiveAcc = (currentBoid.GetBestPosition() - currentBoid.GetPosition());
-    socialAcc = (m_swarmBestPosition - currentBoid.GetPosition()); 
+    cognitiveAcc = (m_boids[i].GetBestPosition() - m_boids[i].GetPosition());
+    socialAcc = (m_swarmBestPosition - m_boids[i].GetPosition()); 
     Eigen::Vector2d acc = m_constants(0) * q * cognitiveAcc.cast<double>() + m_constants(1) * r * socialAcc.cast<double>(); 
-    currentBoid.SetAcceleration(acc);
-    *it = currentBoid;
+    m_boids[i].SetAcceleration(acc);
   }   
 }
 
 void Pso::CheckVelocity()
 {
   for (uint32_t i = 0; i < m_numBoids; i++) {
-    if (m_boids.at(i).GetVelocity().norm() > m_vMax) {
-      Eigen::Vector2d vel = m_boids.at(i).GetVelocity();
+    if (m_boids[i].GetVelocity().norm() > m_vMax) {
+      Eigen::Vector2d vel = m_boids[i].GetVelocity();
       vel.normalize();
       vel = vel * m_vMax;
-      m_boids.at(i).SetVelocity(vel);
+      m_boids[i].SetVelocity(vel);
     }
   }
-}
-
-cv::Mat Pso::GetFrame() const
-{
-  cv::Mat frame(m_bounds(0), m_bounds(1), CV_8UC3, cv::Scalar(0, 0, 0));
-  cv::Vec3b color(0,0,255);
-  for (uint32_t i = 0; i < m_numBoids; i++) {
-    Eigen::Vector2i pos = m_boids.at(i).GetPosition();
-    cv::circle(frame, cv::Point(pos(1),pos(0)), 3, color, -1, 8); 
-  }
-  return frame;
 }
 
 cv::Mat Pso::GetFrame(cv::Mat a_mat) const
 {
   cv::Vec3b color(0,0,255);
   for (uint32_t i = 0; i < m_numBoids; i++) {
-    Eigen::Vector2i pos = m_boids.at(i).GetPosition();
+    Eigen::Vector2i pos = m_boids[i].GetPosition();
     cv::circle(a_mat, cv::Point(pos(1),pos(0)), 3, color, -1, 8); 
   }
   return a_mat;
@@ -230,7 +209,7 @@ void Pso::Step()
   CrazyCheck();
   UpdateAcceleration();
   for (uint32_t i = 0; i < m_numBoids; i++) {
-    m_boids.at(i).Step();
+    m_boids[i].Step();
   }
   CheckVelocity();
 }
@@ -240,7 +219,7 @@ std::string Pso::ToString()
   std::stringstream ss;
   for (uint32_t i = 0; i < m_numBoids; i++) {
     ss << i << ": ";
-    ss << m_boids.at(i).ToString();
+    ss << m_boids[i].ToString();
     ss << std::endl;
   }
   ss << "Best: " << m_swarmBestPerformance << "  at " << m_swarmBestPosition; 
@@ -248,47 +227,63 @@ std::string Pso::ToString()
   return ss.str();
 }
 
-Boid Pso::RandomizeBoidUniform(Boid a_boid)
+
+void Pso::ScrambleUniform()
 {
-  std::uniform_real_distribution<double> distributionPosX(0.0, static_cast<double>(m_bounds(0)));
-  std::uniform_real_distribution<double> distributionPosY(0.0, static_cast<double>(m_bounds(1)));
-  std::uniform_real_distribution<double> distribution(0, 1.0);
+  std::uniform_real_distribution<> distributionPosX(0.0, static_cast<double>(m_currentImg->at(0).rows()));
+  std::uniform_real_distribution<> distributionPosY(0.0, static_cast<double>(m_currentImg->at(0).cols()));
+  std::uniform_real_distribution<> distribution(0, 1.0);
   Eigen::Vector2d pos;
   Eigen::Vector2d vel;
   Eigen::Vector2d acc;
-  vel.setRandom();
-  acc.setRandom();
-  vel.normalize();
-  acc.normalize();
-  vel = vel * distribution(m_randGen) * m_vMax;
-  acc = acc * distribution(m_randGen) * 3.0 * m_aMax;
-  pos << distributionPosX(m_randGen), distributionPosY(m_randGen);
-  a_boid.SetPosition(pos);
-  a_boid.SetVelocity(vel);
-  a_boid.SetAcceleration(acc);
-  return a_boid;
+  for (uint32_t i = 0; i < m_numBoids; i++) {
+    vel.setRandom();
+    acc.setRandom();
+    vel.normalize();
+    acc.normalize();
+    vel = vel * distribution(m_randGen) * m_vMax;
+    acc = acc * distribution(m_randGen) * m_aMax;
+    pos << distributionPosX(m_randGen), distributionPosY(m_randGen);
+    m_boids[i].SetPosition(pos);
+    m_boids[i].SetVelocity(vel);
+    m_boids[i].SetAcceleration(acc);
+  }
 }
 
-void Pso::Scramble()
+void Pso::ScrambleNormal()
 {
-  for (std::vector<Boid>::iterator it = m_boids.begin(); it != m_boids.end(); it++) {
-    Boid currentBoid = *it;
-    *it = RandomizeBoidUniform(currentBoid);
+  std::normal_distribution<> normaldist{0,10};
+  std::uniform_real_distribution<> distribution(0, 1.0);
+  Eigen::Vector2d pos;
+  Eigen::Vector2d vel;
+  Eigen::Vector2d acc;
+  for (uint32_t i = 0; i < m_numBoids; i++) {
+    pos.setRandom();
+    vel.setRandom();
+    acc.setRandom();
+    pos.normalize();
+    vel.normalize();
+    acc.normalize();
+    vel = vel * distribution(m_randGen) * m_vMax;
+    acc = acc * distribution(m_randGen) * m_aMax;
+    pos = pos * normaldist(m_randGen);
+    pos = m_origin.cast<double>() + pos;
+    m_boids[i].SetPosition(pos);
+    m_boids[i].SetVelocity(vel);
+    m_boids[i].SetAcceleration(acc);
   }
 }
 
 void Pso::CrazyCheck()
 {
-  std::uniform_real_distribution<double> distribution(0, 1.0);
-  for (std::vector<Boid>::iterator it = m_boids.begin(); it != m_boids.end(); it++) {
-    Boid currentBoid = *it;
+  std::uniform_real_distribution<> distribution(0, 1.0);
+  for (uint32_t i = 0; i < m_numBoids; i++) {
     if (distribution(m_randGen) < 0.01) {
       Eigen::Vector2d vel;
       vel.normalize();
       vel = vel * distribution(m_randGen) * m_vMax;
-      currentBoid.SetVelocity(vel);
+      m_boids[i].SetVelocity(vel);
     }
-    *it = currentBoid;
   }
 }
 
@@ -300,4 +295,18 @@ double Pso::GetSwarmBestPerformance() const
 Eigen::Vector2i Pso::GetSwarmBestPosition() const
 {
   return m_swarmBestPosition;
+}
+Eigen::Vector2i Pso::GetFlowVector() const
+{
+  return m_swarmBestPosition - m_origin;
+}
+
+void Pso::SetCurrentFrame(std::shared_ptr<std::vector<Eigen::MatrixXi>> a_newFrame)
+{
+  *m_prevImg = *m_currentImg;
+  *m_currentImg = *a_newFrame;
+  for (uint32_t i = 0; i < m_numBoids; i++) {
+    m_boids[i].Reset();
+  }
+  ScrambleNormal();
 }

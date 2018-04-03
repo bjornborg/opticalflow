@@ -1,16 +1,15 @@
 #include <iostream>
-
+#include <chrono>
 #include <string>
 #include <vector>
 
 #include <eigen3/Eigen/Dense>
-#include <videostream.hpp>
-#include <pso.hpp>
 #include <cmath>
 #include <opencv2/core/eigen.hpp>
-
+#include <opencv2/videoio.hpp>
+#include <opencv2/highgui.hpp> 
 #include <opencv2/imgproc.hpp>
-
+#include "opticalflow.hpp"
 int32_t main(int32_t argc, char **argv)
 {
   (void) argc;
@@ -18,75 +17,61 @@ int32_t main(int32_t argc, char **argv)
 
   // std::string path1 = "/home/bjornborg/test.png";
   std::string path1 = "/home/bjornborg/data/Beanbags/frame07.png";
-  std::string path2 = "/home/bjornborg/data/Beanbags/frame08.png";
-  VideoStream vStream = VideoStream();
+  std::string path2 = "/home/bjornborg/data/Beanbags/frame14.png";
+  // std::string path3 = "/home/bjornborg/data/Beanbags/frame14.png";
+  // VideoStream refStream = VideoStream("Reference");
+  // VideoStream searchStream = VideoStream("Search");
   cv::Mat frame1 = cv::imread(path1, CV_LOAD_IMAGE_COLOR);
   cv::Mat frame2 = cv::imread(path2, CV_LOAD_IMAGE_COLOR);
-  vStream.SetCurrentFrame(frame1);
-  vStream.Draw();
-  Eigen::Vector2i searchWindowSize(4, 4);
-
-  std::vector<Eigen::MatrixXi> eigMat1 = ObjectiveFunction::CvBgr2Eigen(frame1);
-  std::vector<Eigen::MatrixXi> eigMat2 = ObjectiveFunction::CvBgr2Eigen(frame2);
-  ObjectiveFunction objFun(eigMat1, eigMat2, Eigen::Vector2i(2,2), searchWindowSize);
+  // cv::Mat frame3 = cv::imread(path3, CV_LOAD_IMAGE_COLOR);
   
-  // double score = ObjectiveFunction::GetScore(eigMat1, eigMat2, Eigen::Vector2i(2,2), Eigen::Vector2i(2,2), searchWindowSize);
+  Eigen::Vector2i searchWindowSize(27, 27);
 
-  // std::cout << score << std::endl;
+  // auto start = std::chrono::steady_clock::now();
+  // auto end = std::chrono::steady_clock::now();
 
-  // cv::Size size = frame1.size();
-  // int32_t rows = size.height;
-  // int32_t cols = size.width;
+  Eigen::Vector2d constants(0.1,0.05);
+  Eigen::Vector2i origin(165,170);
+  std::vector<Eigen::Vector2i> originVec;
+  originVec.push_back(origin);
+  uint32_t numBoids = 15;
+  OpticalFlow of(frame1, frame2, numBoids, originVec, searchWindowSize, constants);
+  of.GetOpticalFlow();
+  of.DrawOpticalFlow();
 
-  // cv::Point initialP(150,145);
+  // Pso pso(eigMat1, eigMat2, origin, numBoids, constants, searchWindowSize); 
+  // pso.SetCurrentFrame(eigMat3);
+  // cv::Point initialP(origin(1)-searchWindowSize(0)/2,origin(0)-searchWindowSize(1)/2);
   // cv::Scalar color(255, 0, 0);
-  // cv::Point arrow(200, 200);
+  // // cv::Point arrow(200, 200);
   // cv::Point endP = initialP;
   // endP = endP + cv::Point(searchWindowSize(0),searchWindowSize(1));
-
   // cv::rectangle(frame1, initialP, endP, color, 0, 0);
-  // cv::rectangle(frame2, initialP, endP, color, 0, 0);
-  // cv::arrowedLine(frame2, initialP, arrow, color, 1, 1, 0, 0.1);
-  // std::cout << frame1.type() << std::endl;
-  // std::cout << frameEnd.type() << std::endl;
-  // vStream.SetCurrentFrame(frame2);
-  // vStream.Draw();
+  // refStream.SetCurrentFrame(frame1);
+  // refStream.Draw();
+  // // cv::waitKey();
 
 
-
-
-
-
-  // cv::Mat test(500, 500, CV_8UC3, cv::Scalar(0, 0, 0));
-  
-  // Eigen::Vector2i windowSize(600, 1200);
-  // Eigen::Vector2d constants;
-  // constants << 0.05,0.001;
-  // uint32_t numBoids = 30;
-  // double visibilityRange = 100;
-
-  // Pso pso = Pso(numBoids, windowSize, visibilityRange, constants, searchWindowSize);
-
-  // cv::Mat map(windowSize(0), windowSize(1), CV_8UC3, cv::Scalar(0, 0, 0));
-  // for (int32_t i = 0; i < windowSize(0); i++) {
-  //   for (int32_t j = 0; j < windowSize(1); j++) {
-  //     Eigen::Vector2i pos(i,j);
-  //     map.at<cv::Vec3b>(i,j)[2] =  static_cast<unsigned char>(ObjectiveFunction::GetValue(pos)  / 7);
-  //   }
-  // }
-  // vStream.SetCurrentFrame(map);
-  // vStream.Draw();
 
   // Eigen::IOFormat CleanFmt(0, 0, " ", " ", "", "");
-  // for (uint32_t i = 0; i < 1000; i++){
-  //   // std::cout << pso.ToString() << std::endl;
-  //   // std::cout << "Best: " << pso.GetSwarmBestPerformance() << " at " << pso.GetSwarmBestPosition().format(CleanFmt) << std::endl;
+  // pso.Step();
+  // std::chrono::duration<double, std::milli> diff = end-start;
+  // std::cout << "Time: " << diff.count() << " ms, " << std::endl;
+  // for (uint32_t i = 0; i < 500; i++){
+  //   std::cout << pso.ToString() << std::endl;
   //   pso.Step();
-  //   vStream.SetCurrentFrame(pso.GetFrame(map.clone()));
-  //   vStream.Draw();
+  //   Eigen::Vector2i pos = pso.GetSwarmBestPosition();
+  //   cv::Point p0(pos(1)-searchWindowSize(0)/2,pos(0)-searchWindowSize(1)/2);
+  //   cv::Point p1 = p0;
+  //   p1 = p1 + cv::Point(searchWindowSize(0),searchWindowSize(1));
+  //   cv::Mat searchMat = pso.GetFrame(frame3.clone());
+  //   cv::rectangle(searchMat, p0, p1, color, 0, 0);
+  //   searchStream.SetCurrentFrame(searchMat);
+  //   searchStream.Draw();
+  //   std::cout << "Best: " << pso.GetSwarmBestPerformance() << " at " << pso.GetFlowVector().format(CleanFmt) << std::endl;
+  //   cv::waitKey();
   // }
-  // std::cout << "Best: " << pso.GetSwarmBestPerformance() << " at " << pso.GetSwarmBestPosition().format(CleanFmt) << std::endl;
-
+  // // cv::waitKey();
 
   return 0;
 

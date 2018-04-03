@@ -60,7 +60,8 @@ include_directories(${Eigen3_INCLUDE_DIRS})
 add_library(${PROJECT_NAME}-core OBJECT 
 ${CMAKE_CURRENT_SOURCE_DIR}/src/videostream.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/pso.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/objectivefunction.cpp)
+${CMAKE_CURRENT_SOURCE_DIR}/src/objectivefunction.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/opticalflow.cpp)
 
 
 set(LIBRARIES Threads::Threads ${OpenCV_LIBS} ${Eigen3_LIBS})
