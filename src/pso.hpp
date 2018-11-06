@@ -17,9 +17,8 @@ private:
   ObjectiveFunction m_objFun;
 
   void UpdatePerformance();
-  Eigen::Vector2i CheckBoundary(Eigen::Vector2i const);
 public:
-  Boid(ObjectiveFunction const);
+  Boid(ObjectiveFunction const &);
   ~Boid();
   Boid(const Boid &) = default;
   Boid(Boid &&) = default;
@@ -45,8 +44,10 @@ public:
 class Pso
 {
 private:
-  std::shared_ptr<std::vector<Eigen::MatrixXi>> m_prevImg;
-  std::shared_ptr<std::vector<Eigen::MatrixXi>> m_currentImg;
+  // std::shared_ptr<std::vector<Eigen::MatrixXi>> m_prevImg;
+  // std::shared_ptr<std::vector<Eigen::MatrixXi>> m_currentImg;
+  std::shared_ptr<cv::UMat> m_prevImg;
+  std::shared_ptr<cv::UMat> m_currentImg;
   Eigen::Vector2i m_origin;
   uint32_t m_numBoids;
   std::vector<Boid> m_boids;
@@ -65,8 +66,11 @@ private:
   void CrazyCheck();
 
 public:
-  Pso(std::shared_ptr<std::vector<Eigen::MatrixXi>> ,
-      std::shared_ptr<std::vector<Eigen::MatrixXi>> ,
+  Pso(
+      // std::shared_ptr<std::vector<Eigen::MatrixXi>> ,
+      // std::shared_ptr<std::vector<Eigen::MatrixXi>> ,
+      std::shared_ptr<cv::UMat> const &,
+      std::shared_ptr<cv::UMat> const &,
       Eigen::Vector2i,
       uint32_t, 
       Eigen::Vector2d, 

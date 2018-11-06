@@ -15,6 +15,7 @@ int32_t main(int32_t argc, char **argv)
 {
   (void) argc;
   (void) argv;
+  Eigen::initParallel();
 
   // std::string path = "/home/bjornborg/Video/Sample.mp4";
 
@@ -38,16 +39,20 @@ int32_t main(int32_t argc, char **argv)
     return -1;
   }  // check if we succeeded
 
-  cv::Mat frame0;
+  cv::UMat frame0;
   cap >> frame0; 
-  cv::Mat frame1;
+  cv::UMat frame1;
   cap >> frame1; 
 
-  Eigen::Vector2i searchWindowSize(30, 30);
+  Eigen::Vector2i searchWindowSize(31, 31);
 
 
   Eigen::Vector2d constants(0.1,0.05);
   std::vector<Eigen::Vector2i> originVec;
+  originVec.push_back(Eigen::Vector2i(465,70));
+  originVec.push_back(Eigen::Vector2i(365,70));
+  originVec.push_back(Eigen::Vector2i(265,70));
+  originVec.push_back(Eigen::Vector2i(165,70));
   originVec.push_back(Eigen::Vector2i(465,170));
   originVec.push_back(Eigen::Vector2i(365,170));
   originVec.push_back(Eigen::Vector2i(265,170));
@@ -56,19 +61,26 @@ int32_t main(int32_t argc, char **argv)
   originVec.push_back(Eigen::Vector2i(365,270));
   originVec.push_back(Eigen::Vector2i(265,270));
   originVec.push_back(Eigen::Vector2i(165,270));
+  originVec.push_back(Eigen::Vector2i(465,370));
+  originVec.push_back(Eigen::Vector2i(365,370));
+  originVec.push_back(Eigen::Vector2i(265,370));
+  originVec.push_back(Eigen::Vector2i(165,370));
   uint32_t numBoids = 10;
   OpticalFlow of(frame0, frame1, numBoids, originVec, searchWindowSize, constants);
-  while(true)
+  cv::UMat temp;
+  auto end = std::chrono::steady_clock::now();
+  auto start = std::chrono::steady_clock::now();
+  while(cap.read(temp))
   {
-    cv::Mat temp;
-    cap >> temp;
+
     of.SetNewFrame(temp);
-    auto start = std::chrono::steady_clock::now();
     of.GetOpticalFlow();
-    auto end = std::chrono::steady_clock::now();
     of.DrawOpticalFlow();
+    // cv::waitKey();
+    end = std::chrono::steady_clock::now();
     std::chrono::duration<double, std::milli> diff = end-start;
     std::cout << "Time: " << diff.count() << " ms, " << std::endl;
+    start = std::chrono::steady_clock::now();
   }
   return 0;
 }

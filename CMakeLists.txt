@@ -57,11 +57,18 @@ include_directories(${Eigen3_INCLUDE_DIRS})
 
 ################################################################################
 # OpenMP
-FIND_PACKAGE(OpenMP)
+find_package(OpenMP)
 IF(OPENMP_FOUND)
-    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF()
+
+# Vulkan 
+# find_package(Vulkan)
+# IF(Vulkan_FOUND)
+#     include_directories(${Vulkan_INCLUDE_DIRS})
+# ENDIF()
+ 
 ################################################################################
 # Gather all object code first to avoid double compilation.
 add_library(${PROJECT_NAME}-core OBJECT 

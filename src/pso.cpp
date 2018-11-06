@@ -6,7 +6,7 @@
 
 #include <pso.hpp>
 
-Boid::Boid(ObjectiveFunction a_objFun)
+Boid::Boid(ObjectiveFunction const &a_objFun)
   : m_pos()
   , m_vel()
   , m_acc()
@@ -97,10 +97,6 @@ void Boid::Step()
 
 }
 
-Eigen::Vector2i Boid::CheckBoundary(Eigen::Vector2i const a_val)
-{
-  return m_objFun.CheckBoundary(a_val);
-}
 
 double Boid::GetPerformance() const
 {
@@ -123,8 +119,10 @@ Eigen::Vector2i Boid::GetBestPosition() const
 */
 
 Pso::Pso(
-      std::shared_ptr<std::vector<Eigen::MatrixXi>> a_prevImg,
-      std::shared_ptr<std::vector<Eigen::MatrixXi>> a_currentImg,
+      // std::shared_ptr<std::vector<Eigen::MatrixXi>> a_prevImg,
+      // std::shared_ptr<std::vector<Eigen::MatrixXi>> a_currentImg,
+      std::shared_ptr<cv::UMat> const &a_prevImg,
+      std::shared_ptr<cv::UMat> const &a_currentImg,
       Eigen::Vector2i a_origin, 
       uint32_t a_numBoids, 
       Eigen::Vector2d a_constants, 
@@ -144,8 +142,8 @@ Pso::Pso(
 {
   std::random_device r;
   m_randGen = std::default_random_engine(r());
-  m_vMax = 5;
-  m_aMax = 20;
+  m_vMax = 3;
+  m_aMax = 10;
 
   ObjectiveFunction objFun(a_prevImg, a_currentImg, a_origin, a_kernelSize);
   for (uint32_t i = 0; i < m_numBoids; i++) {
@@ -207,6 +205,7 @@ void Pso::Step()
 {
   CrazyCheck();
   UpdateAcceleration();
+  // #pragma omp parallel for
   for (uint32_t i = 0; i < m_numBoids; i++) {
     m_boids[i].Step();
   }
@@ -229,8 +228,8 @@ std::string Pso::ToString()
 
 void Pso::ScrambleUniform()
 {
-  std::uniform_real_distribution<> distributionPosX(0.0, static_cast<double>(m_currentImg->at(0).rows()));
-  std::uniform_real_distribution<> distributionPosY(0.0, static_cast<double>(m_currentImg->at(0).cols()));
+  std::uniform_real_distribution<> distributionPosX(0.0, static_cast<double>((*m_currentImg).rows));
+  std::uniform_real_distribution<> distributionPosY(0.0, static_cast<double>((*m_currentImg).cols));
   std::uniform_real_distribution<> distribution(0, 1.0);
   Eigen::Vector2d pos;
   Eigen::Vector2d vel;
