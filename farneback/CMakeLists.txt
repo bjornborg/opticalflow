@@ -7,7 +7,7 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 
-project(lucas-kanade)
+project(farneback)
 
 ################################################################################
 # Defining the relevant versions of OpenDLV Standard Message Set and libcluon.
@@ -87,6 +87,11 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 ################################################################################
+# Eigen
+# find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+# include_directories(${Eigen3_INCLUDE_DIRS})
+
+################################################################################
 # OpenMP
 FIND_PACKAGE(OpenMP)
 IF(OPENMP_FOUND)
@@ -98,16 +103,20 @@ ENDIF()
 # add_library(${PROJECT_NAME}-core STATIC  
 # ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp 
 # )
-add_custom_target(generate_opendlv_standard_message_set_hpp DEPENDS ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp)
+# add_custom_target(generate_opendlv_standard_message_set_hpp DEPENDS ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp)
 # add_dependencies(${PROJECT_NAME}-core generate_opendlv_standard_message_set_hpp)
 
-set(LIBRARIES Threads::Threads ${OpenCV_LIBS})
+set(LIBRARIES Threads::Threads ${OpenCV_LIBS} 
+# ${Eigen3_LIBS}
+)
 
 
 ################################################################################
 # Create executable.
-add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/lucaskanade.cpp)
-target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
+add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}.cpp)
+target_link_libraries(${PROJECT_NAME} 
+# ${PROJECT_NAME}-core 
+${LIBRARIES})
 
 ################################################################################
 # Enable unit testing.
