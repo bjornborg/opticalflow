@@ -1,0 +1,14 @@
+FROM bjornborg/opencv4contrib:latest
+
+ADD . /opt/sources/
+
+#install Microservice
+WORKDIR /opt/sources
+RUN mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    make  &&  make install 
+
+WORKDIR /usr/bin
+
+

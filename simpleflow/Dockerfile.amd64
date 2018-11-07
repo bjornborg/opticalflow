@@ -1,0 +1,41 @@
+FROM ubuntu:latest
+
+RUN apt-get update && \
+        apt-get install -y \
+        build-essential \
+        ccache \
+        cmake \
+        gfortran \
+        git \
+        libatlas-base-dev \
+        libavcodec-dev \
+        libavformat-dev \
+        libeigen3-dev\
+        libgtk2.0-dev \
+        libhdf5-serial-dev \
+        libjasper-dev \
+        libjpeg-dev \
+        libpng-dev \
+        libpq-dev \
+        libswscale-dev \
+        libtbb-dev \
+        libtiff-dev \
+        libv4l-dev \
+        pkg-config \
+        unzip \
+        wget \
+        yasm \
+        libprotobuf-dev \
+        libffmpeg
+
+WORKDIR /opt/
+RUN git clone --depth=1 https://github.com/opencv/opencv_contrib.git && \
+      git clone --depth=1 https://github.com/opencv/opencv.git && \
+      mkdir opencv/build && \
+      cd opencv/build && \
+      cmake -DWITH_CUDA=OFF -DWITH_TBB=ON -DENABLE_FAST_MATH=1 -DCUDA_FAST_MATH=0 -DWITH_CUBLAS=0 -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules .. && \
+      make -j8 && \
+      make install
+# Opencv 4 + cuda installed
+
+
