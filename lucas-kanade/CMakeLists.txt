@@ -11,7 +11,7 @@ project(lucas-kanade)
 
 ################################################################################
 # Defining the relevant versions of OpenDLV Standard Message Set and libcluon.
-set(OPENDLV_STANDARD_MESSAGE_SET opendlv-standard-message-set-v0.9.6.odvd)
+# set(OPENDLV_STANDARD_MESSAGE_SET opendlv-standard-message-set-v0.9.6.odvd)
 set(CLUON_COMPLETE cluon-complete-v0.0.114.hpp)
 
 ################################################################################
@@ -72,10 +72,10 @@ endif()
 
 ################################################################################
 # Generate opendlv-standard-message-set.hpp from ${OPENDLV_STANDARD_MESSAGE_SET} file.
-add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp --out=${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET}
-DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET} ${CMAKE_BINARY_DIR}/cluon-msc)
+# add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp
+#     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+#     COMMAND ${CMAKE_BINARY_DIR}/cluon-msc --cpp --out=${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET}
+# DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/${OPENDLV_STANDARD_MESSAGE_SET} ${CMAKE_BINARY_DIR}/cluon-msc)
 
 # Add current build directory as include directory as it contains generated files.
 include_directories(SYSTEM ${CMAKE_BINARY_DIR})
@@ -98,7 +98,7 @@ ENDIF()
 # add_library(${PROJECT_NAME}-core STATIC  
 # ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp 
 # )
-add_custom_target(generate_opendlv_standard_message_set_hpp DEPENDS ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp)
+# add_custom_target(generate_opendlv_standard_message_set_hpp DEPENDS ${CMAKE_BINARY_DIR}/opendlv-standard-message-set.hpp)
 # add_dependencies(${PROJECT_NAME}-core generate_opendlv_standard_message_set_hpp)
 
 set(LIBRARIES Threads::Threads ${OpenCV_LIBS})
@@ -107,6 +107,8 @@ set(LIBRARIES Threads::Threads ${OpenCV_LIBS})
 ################################################################################
 # Create executable.
 add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/lucaskanade.cpp)
+add_dependencies(${PROJECT_NAME} cluon)
+add_custom_target(cluon DEPENDS ${CMAKE_BINARY_DIR}/cluon-msc)
 target_link_libraries(${PROJECT_NAME} ${LIBRARIES})
 
 ################################################################################

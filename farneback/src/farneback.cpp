@@ -8,11 +8,6 @@
 
 #include "cluon-complete.hpp"
 
-#include "opendlv-standard-message-set.hpp"
-// #include <chrono>
-// #include <string>
-// #include <vector>
-
 int32_t main(int32_t argc, char **argv)
 {
   auto commandlineArguments = cluon::getCommandlineArguments(argc, argv);

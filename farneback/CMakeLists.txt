@@ -114,6 +114,8 @@ set(LIBRARIES Threads::Threads ${OpenCV_LIBS}
 ################################################################################
 # Create executable.
 add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/${PROJECT_NAME}.cpp)
+add_dependencies(${PROJECT_NAME} cluon)
+add_custom_target(cluon DEPENDS ${CMAKE_BINARY_DIR}/cluon-msc)
 target_link_libraries(${PROJECT_NAME} 
 # ${PROJECT_NAME}-core 
 ${LIBRARIES})

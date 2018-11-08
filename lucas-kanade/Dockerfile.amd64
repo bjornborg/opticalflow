@@ -1,14 +1,27 @@
 FROM bjornborg/opencv4contrib:latest
 
-ADD . /opt/sources/
+ADD src /opt/sources/src
+ADD CMakeLists.txt /opt/sources/
 
 #install Microservice
 WORKDIR /opt/sources
 RUN mkdir -p build && \
     cd build && \
     cmake .. && \
-    make  &&  make install 
+    make  &&  make install && cp lucas-kanade /tmp
 
-WORKDIR /usr/bin
+RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
+    unzip flow-code.zip && \
+    cd flow-code/imageLib && \
+    make && \
+    cd .. && \
+    make && \
+    cp color_flow /tmp
 
+RUN apt-get update && apt-get install -y time
 
+ADD scripts/bench.sh /tmp
+
+WORKDIR /tmp
+
+ENTRYPOINT ["/tmp/bench.sh", "/data/first_image.txt", "/data/second_image.txt"]
