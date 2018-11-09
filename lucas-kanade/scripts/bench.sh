@@ -1,7 +1,8 @@
 #!/bin/bash
-# $1 file with first image entries
-# $2 file with second image entries
-# $3 number of loops for time measurements
+# $1 number of loops for time measurements
+# $2 gridstep
+# $3 k
+# $4 sigma
 
 algorithm='lucas-kanade'
 
@@ -10,8 +11,8 @@ resultPath=${dataPath}"/results/"${algorithm}
 
 # echo -e ${3}
 
-nBeforeEntries=$(wc -l < ${1})
-nAfterEntries=$(wc -l < ${2})
+nBeforeEntries=$(wc -l < /data/first_image.txt)
+nAfterEntries=$(wc -l < /data/second_image.txt)
 
 # echo ${nBeforeEntries}
 # echo ${nAfterEntries}
@@ -23,15 +24,15 @@ mkdir -p ${resultPath}/flow
 mkdir -p ${resultPath}/colorflow
 echo '#elapsed,percent,systime,usrtime,elapsed' > ${resultPath}/time.csv
 
-for n in $(seq 1 ${3})
+for n in $(seq 1 ${1})
 do
   echo -e "Loop: " $n
   resultCounter=0
-  paste ${1} $2 | while IFS="$(printf '\t')" read -r imageBefore imageAfter
+  paste /data/first_image.txt /data/second_image.txt | while IFS="$(printf '\t')" read -r imageBefore imageAfter
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/lucas-kanade --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --gridstep=8 --k=128  --sigma=0.05
+    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/lucas-kanade --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --gridstep=${2:-8} --k=${3:-128}  --sigma=${4:-0.05}
     /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done

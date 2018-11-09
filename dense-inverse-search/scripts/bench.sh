@@ -1,13 +1,8 @@
 #!/bin/bash
 # $1 number of loops for time measurements
-# $2 pyr_scale
-# $3 levels
-# $4 winsize
-# $5 iterations
-# $6 poly_n
-# $7 poly_sigma
+# $2 preset
 
-algorithm='farneback'
+algorithm='dense-inverse-search'
 
 
 
@@ -37,7 +32,7 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/farneback --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --pyr_scale=${2:-0.5} --levels=${3:-3} --winsize=${4:-15} --iterations=${5:-3} --poly_n=${6:-5} --poly_sigma=${7:-1.2} 
+    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/dis --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --pyr_scale=${2:-medium}
     /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done

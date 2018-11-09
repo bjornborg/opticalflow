@@ -1,0 +1,3 @@
+[submodule "flownet2/flownet2-docker"]
+	path = flownet2/flownet2-docker
+	url = git@github.com:lmb-freiburg/flownet2-docker.git

@@ -2,3 +2,4 @@ build
 workspace
 opticflow.code-workspace
 tmp
+results
