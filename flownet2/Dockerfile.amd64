@@ -38,7 +38,8 @@ RUN apt-get update && \
         python-pillow \
         python-skimage \
         time \
-        axel
+        axel \
+        unzip
 RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     cp ./FN2_Makefile.config ./flownet2/Makefile.config && \
     cp ./FN2_run-flownet-docker.py ./flownet2/scripts/run-flownet-docker.py && \
