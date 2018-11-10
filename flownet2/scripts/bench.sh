@@ -137,7 +137,7 @@ echo -e "Working dir:     ${WORKDIR}";
 # fun__debug_printf "Second input:    ${SECOND_INPUT}";
 # fun__debug_printf "Output:          ${OUTPUT}";
 
-cd /flownet2/flownet2
+cd /tmp/flownet2
 
 export CAFFE_PATH="/tmp/flownet2"
 export RELEASE_PATH="$CAFFE_PATH/build" 
