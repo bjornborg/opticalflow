@@ -2,7 +2,7 @@
 FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
 
 ## Put everything in some subfolder
-WORKDIR "/flownet2"
+WORKDIR "/tmp"
 
 ## The build context contains some files which make the raw FlowNet2
 ## repo fit for Docker
@@ -55,6 +55,14 @@ RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     cd .. && \
     make -j`nproc` && \
     make -j`nproc` pycaffe 
+
+RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
+    unzip flow-code.zip && \
+    cd flow-code/imageLib && \
+    make && \
+    cd .. && \
+    make && \
+    cp color_flow /tmp
 
 RUN  apt-get remove -y \
         module-init-tools \

@@ -4,9 +4,9 @@
 # Author: Nikolaus Mayer
 # Author: Björnborg Nguyen
 ##
-# $1 number of loops for time measurements
-# -n network
 # -g gpu id
+# -n network
+# $1 number of loops for time measurements
 
 
 ## Fail if any command fails (use "|| true" if a command is ok to fail)
@@ -26,6 +26,7 @@ fun__print_usage () {
   printf "###################################################################\n";
   printf "add '-g 0' for using gpu with id 0\n";
   printf "add '-n FlowNet2' for using a pretrained net. E.g. '-n FlowNet2-KITTI'\n";
+  printf "example with 100 loops: ./bench.sh -g 0 -n FlowNet2-KITTI 100 ";
   printf "Available 'network' values:\n";
   printf "  FlowNet2\n";
   printf "  FlowNet2-c\n";
@@ -102,8 +103,8 @@ shift `expr $OPTIND - 1`;
 
 
 ## Check and use "-n" input argument
-BASEDIR="/flownet2/flownet2/models";
-WORKDIR="/flownet2/flownet2/scripts";
+BASEDIR="/tmp/flownet2/models";
+WORKDIR="/tmp/flownet2/scripts";
 case "${NETWORK}" in
   "FlowNet2")           ;;
   "FlowNet2-c")         ;;
@@ -138,7 +139,7 @@ echo -e "Working dir:     ${WORKDIR}";
 
 cd /flownet2/flownet2
 
-export CAFFE_PATH="/flownet2/flownet2"
+export CAFFE_PATH="/tmp/flownet2"
 export RELEASE_PATH="$CAFFE_PATH/build" 
 export PYTHONPATH="$CAFFE_PATH/python"
 export LD_LIBRARY_PATH="$RELEASE_PATH/lib:$LD_LIBRARY_PATH"
@@ -170,7 +171,7 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" python /flownet2/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${resultCounter}.flo
+    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${resultCounter}.flo
     # /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/farneback --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --pyr_scale=${4:-0.5} --levels=${5:-3} --winsize=${6:-15} --iterations=${7:-3} --poly_n=${8:-5} --poly_sigma=${9:-1.2} 
     /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
     resultCounter=$[$resultCounter +1]
