@@ -8,7 +8,7 @@ WORKDIR /opt/sources
 RUN mkdir -p build && \
     cd build && \
     cmake .. && \
-    make  &&  make install && cp dis /tmp
+    make  &&  make install && cp dense-inverse-search /tmp
 
 RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     unzip flow-code.zip && \
@@ -24,7 +24,7 @@ ADD scripts/bench.sh /tmp
 
 WORKDIR /tmp
 
-ENTRYPOINT ["/tmp/bench.sh", "/data/first_image.txt", "/data/second_image.txt"]
+ENTRYPOINT ["/tmp/bench.sh"]
 
 WORKDIR /tmp
 

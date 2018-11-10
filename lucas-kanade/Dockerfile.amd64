@@ -24,4 +24,4 @@ ADD scripts/bench.sh /tmp
 
 WORKDIR /tmp
 
-ENTRYPOINT ["/tmp/bench.sh", "/data/first_image.txt", "/data/second_image.txt"]
+ENTRYPOINT ["/tmp/bench.sh"]

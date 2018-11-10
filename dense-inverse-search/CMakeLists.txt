@@ -7,7 +7,7 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 
-project(dis)
+project(dense-inverse-search)
 
 ################################################################################
 # Defining the relevant versions of OpenDLV Standard Message Set and libcluon.
