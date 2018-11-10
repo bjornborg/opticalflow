@@ -1,16 +1,16 @@
-# opticalflow
+# Optical flow docker benchmark deployment
 
 This assumes that you have amd64 arch, docker-ce installed, and your user is a part of the docker groups. 
-Run easy checks:
+Run easy sanity checks:
 
-`
+```sh
 # Check if you are a part of docker groups
 groups
 # running docker hello world
 docker run hello-world
 # running nvidia docker hello world
 docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
-`
+```
 
 If you are not a part of the docker group, simply pre-pend sudo command to all docker commands.
 
