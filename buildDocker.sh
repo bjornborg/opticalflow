@@ -1,6 +1,6 @@
 #!/bin/bash
 
-projects=( deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow simpleflow )
+projects=( deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow simpleflow flownet2 )
 
 for optflow in "${projects[@]}"
 do 

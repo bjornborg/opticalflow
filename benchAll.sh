@@ -2,7 +2,7 @@
 #$1 datapath
 #$2 num loops
 
-projects=( deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow simpleflow flownet2 )
+projects=( deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow simpleflow )
 
 
 for optflow in "${projects[@]}"
