@@ -32,7 +32,7 @@ fi
 
 mkdir -p ${resultPath}/flow
 mkdir -p ${resultPath}/colorflow
-echo '#elapsed,percent,systime,usrtime,elapsed' > ${resultPath}/time.csv
+echo '#elapsed time [seconds]' > ${resultPath}/time.csv
 
 for n in $(seq 1 ${1})
 do
@@ -42,7 +42,7 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --layers=${2:-3} --averaging_block_size=${3:-2} --max_flow=${4:-4} --sigma_dist=${5:-4.1} --sigma_color=${6:-25.5} --postprocess_window=${7:-18} --sigma_dist_fix=${8:-55.0} --sigma_color_fix=${9:-25.5} --occ_thr=${10:-0.35} --upscale_averaging_radius=${11:-18} --upscale_sigma_dist=${12:-55.0} --upscale_sigma_color=${13:-25.5} --speed_up_thr=${14:-10.0}
+    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --layers=${2:-3} --averaging_block_size=${3:-2} --max_flow=${4:-4} --sigma_dist=${5:-4.1} --sigma_color=${6:-25.5} --postprocess_window=${7:-18} --sigma_dist_fix=${8:-55.0} --sigma_color_fix=${9:-25.5} --occ_thr=${10:-0.35} --upscale_averaging_radius=${11:-18} --upscale_sigma_dist=${12:-55.0} --upscale_sigma_color=${13:-25.5} --speed_up_thr=${14:-10.0} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
 
     /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
     

@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM nvidia/cuda:10.0-cudnn7-devel-ubuntu18.04
 
 RUN apt-get update && \
         apt-get install -y \
@@ -25,16 +25,19 @@ RUN apt-get update && \
         wget \
         yasm \
         libprotobuf-dev \
-        ffmpeg
+        ffmpeg 
+
+
 
 WORKDIR /opt/
 RUN git clone --depth=1 https://github.com/opencv/opencv_contrib.git && \
       git clone --depth=1 https://github.com/opencv/opencv.git && \
       mkdir opencv/build && \
       cd opencv/build && \
-      cmake -DWITH_CUDA=OFF -DWITH_TBB=ON -DENABLE_FAST_MATH=1 -DCUDA_FAST_MATH=0 -DWITH_CUBLAS=0 -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules .. && \
+      cmake -DWITH_CUDA=ON -DWITH_TBB=ON -DENABLE_FAST_MATH=1 -DCUDA_FAST_MATH=1 -DWITH_CUBLAS=1 -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules .. && \
       make -j8 && \
-      make install
+      make install && \
+      cd .. && \
+      rm -rf opencv*
 # Opencv 4 + cuda installed
-
 

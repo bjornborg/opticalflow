@@ -1,4 +1,39 @@
+# FROM bjornborg/cudaopencv4contrib:latest
 FROM bjornborg/opencv4contrib:latest
+# Installing perf
+WORKDIR /tmp
+RUN apt-get update && apt-get install -y \
+        distro-info-data \
+        file \
+        libdw1 \
+        libelf1 \
+        libexpat1 \
+        libmagic-mgc \
+        libmagic1 \
+        libmpdec2 \
+        libnuma1 \
+        libpci3 \
+        libpython3-stdlib \
+        libpython3.6-minimal \
+        libpython3.6-stdlib \
+        libreadline7 \
+        libslang2 \
+        libsqlite3-0 \
+        libunwind8 \
+        linux-tools-common \
+        lsb-release \
+        mime-support \
+        python3 \
+        python3-minimal \
+        python3.6 \
+        python3.6-minimal \
+        readline-common \
+        xz-utils && \
+    wget -q http://security.ubuntu.com/ubuntu/pool/main/l/linux/linux-tools-4.15.0-39_4.15.0-39.42_amd64.deb \
+        http://security.ubuntu.com/ubuntu/pool/main/l/linux/linux-tools-4.15.0-39-generic_4.15.0-39.42_amd64.deb && \
+    dpkg -i linux-tools-4.15.0-39_4.15.0-39.42_amd64.deb \
+        linux-tools-4.15.0-39-generic_4.15.0-39.42_amd64.deb
+   
 
 ADD src /opt/sources/src
 ADD CMakeLists.txt /opt/sources/
@@ -18,14 +53,12 @@ RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     make && \
     cp color_flow /tmp
 
-RUN apt-get update && apt-get install -y time
+# RUN apt-get update && apt-get install -y time
 
 ADD scripts/bench.sh /tmp
 
 WORKDIR /tmp
 
 ENTRYPOINT ["/tmp/bench.sh"]
-
-WORKDIR /tmp
 
 

@@ -53,18 +53,6 @@ GPU_IDX=0;
 NETWORK="";
 # VERBOSITY=0;
 
-## Verbosity-controlled "printf" wrapper for ERROR
-# fun__error_printf () {
-#   if test $VERBOSITY -ge 0; then
-#     printf "%s\n" "$@";
-#   fi
-# }
-# ## Verbosity-controlled "printf" wrapper for DEBUG
-# fun__debug_printf () {
-#   if test $VERBOSITY -ge 1; then
-#     printf "%s\n" "$@";
-#   fi
-# }
 
 ## Parse arguments into parameters
 while getopts g:n:h OPTION; do
@@ -78,28 +66,6 @@ while getopts g:n:h OPTION; do
 done
 shift `expr $OPTIND - 1`;
 
-## Isolate network inputs
-# FIRST_INPUT="";
-# SECOND_INPUT="";
-# OUTPUT="";
-# if test "$#" -ne 3; then
-#   fun__error_printf "! Missing input or output arguments";
-#   fun__die;
-# else
-#   FIRST_INPUT="$1";
-#   SECOND_INPUT="$2";
-#   OUTPUT="$3";
-# fi
-
-## Check if input files exist
-# if test ! -f "${FIRST_INPUT}"; then
-#   fun__error_printf "First input '${FIRST_INPUT}' is unreadable or does not exist.";
-#   fun__die;
-# fi
-# if test ! -f "${SECOND_INPUT}"; then
-#   fun__error_printf "Second input '${SECOND_INPUT}' is unreadable or does not exist.";
-#   fun__die;
-# fi
 
 
 ## Check and use "-n" input argument
@@ -161,7 +127,7 @@ fi
 
 mkdir -p ${resultPath}/flow
 mkdir -p ${resultPath}/colorflow
-echo '#elapsed,percent,systime,usrtime,elapsed' > ${resultPath}/time.csv
+echo '#elapsed time [seconds]' > ${resultPath}/time.csv
 
 for n in $(seq 1 ${1})
 do
@@ -171,8 +137,7 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${resultCounter}.flo
-    # /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/farneback --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --pyr_scale=${4:-0.5} --levels=${5:-3} --winsize=${6:-15} --iterations=${7:-3} --poly_n=${8:-5} --poly_sigma=${9:-1.2} 
+    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${resultCounter}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
     /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
@@ -180,31 +145,5 @@ done
 
 echo 'Done'
 
-
-
-
-
-
-## Run docker container
-#  - "--device" lines map a specified host GPU into the contained
-#  - "-v" allows the container the read from/write to the current $PWD
-#  - "-w" executes "cd" in the container (each network has a folder)
-## Note: The ugly conditional only switches stdout on/off.
-# if test $VERBOSITY -ge 2; then
-#   nvidia-docker run \
-#     --rm \
-#     --volume "${PWD}:/input-output:rw" \
-#     --workdir "${WORKDIR}" \
-#     -it "$CONTAINER" /bin/bash -c "cd ..; source set-env.sh; cd -; python run-flownet-docker.py --verbose --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${FIRST_INPUT} ${SECOND_INPUT} ${OUTPUT}"
-# else
-#   nvidia-docker run \
-#     --rm \
-#     --volume "${PWD}:/input-output:rw" \
-#     --workdir "${WORKDIR}" \
-#     -it "$CONTAINER" /bin/bash -c "cd ..; source set-env.sh; cd -; python run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${FIRST_INPUT} ${SECOND_INPUT} ${OUTPUT}"
-#     > /dev/null;
-# fi
-
 ## Bye!
-echo -e "Done!";
 exit `:`;

@@ -28,9 +28,9 @@ If you want to run the benchmarks on a different data set, simply put the data i
 
 ```sh
 # Running lucas kanade OF algorithm on the example data
-docker run -v ${PWD}/data:/data bjornborg/lucas-kanade 1
+docker run --privileged -v ${PWD}/data:/data bjornborg/lucas-kanade 1
 # Or on custom data with the path /myDataPath/customdata
-docker run -v /myDataPath/customdata:/data bjornborg/lucas-kanade 1
+docker run --privileged -v /myDataPath/customdata:/data bjornborg/lucas-kanade 1
 ```
 
 The benchmark results will output three things(.flo files, colored flo images and time.csv files) in the results folder located where the data set is (for example in data/results).
@@ -41,34 +41,34 @@ To run a single benchmark looping 10 times use the following cases:
 ### Deepflow
 ```sh
 # Deepflow (default param values)
-docker run -v ${PWD}/data:/data bjornborg/deepflow 10
+docker run --privileged -v ${PWD}/data:/data bjornborg/deepflow 10
 # If you want to loop it 1000 times or any non-negative arbitrary number, replace 10 with that number.
 # For example 1000 loops 
-docker run -v ${PWD}/data:/data bjornborg/deepflow 1000 
+docker run --privileged -v ${PWD}/data:/data bjornborg/deepflow 1000 
 ```
 
 ### Dense inverse search
 ```sh
 # Dense inverse search with default preset (medium)
-docker run -v ${PWD}/data:/data bjornborg/dense-inverse-search 10 
+docker run --privileged -v ${PWD}/data:/data bjornborg/dense-inverse-search 10 
 # with ultrafast preset
-docker run -v ${PWD}/data:/data bjornborg/dense-inverse-search 10 ultrafast
+docker run --privileged -v ${PWD}/data:/data bjornborg/dense-inverse-search 10 ultrafast
 ```
 
 ### Dual TVL1
 ```sh
 # Dual TVL1
-docker run -v ${PWD}/data:/data bjornborg/dualtvl1 10
+docker run --privileged -v ${PWD}/data:/data bjornborg/dualtvl1 10
 # with additional params: tau=0.25, lambda=0.15, theta=0.3, nscales=5, warps=5, epsilon=0.01, innnerIterations=30, outerIterations=10, scaleStep=0.8, gamma=0.0, medianFiltering=5
-docker run -v ${PWD}/data:/data bjornborg/dualtvl1 10 0.25 0.15 0.3 5 5 0.01 30 10 0.8 0.0 5
+docker run --privileged -v ${PWD}/data:/data bjornborg/dualtvl1 10 0.25 0.15 0.3 5 5 0.01 30 10 0.8 0.0 5
 ```
 
 ### Farnebäck 
 ```sh
 #(default param values) with 10 loops
-docker run -v ${PWD}/data:/data bjornborg/farneback 10
+docker run --privileged -v ${PWD}/data:/data bjornborg/farneback 10
 #or with additional params: pyr_scale=0.5, levels=3, winsize=15, iterations=3, poly_n=5, poly_sigma=1.2 
-docker run -v ${PWD}/data:/data bjornborg/farneback 10 0.5 3 15 3 5 1.2
+docker run --privileged -v ${PWD}/data:/data bjornborg/farneback 10 0.5 3 15 3 5 1.2
 ```
 
 
@@ -83,23 +83,23 @@ docker run --runtime=nvidia -v ${PWD}/data:/data bjornborg/flownet2 -h
 ### Lucas-Kanade
 ```sh
 # Lucas-Kanade (default param values)
-docker run -v ${PWD}/data:/data bjornborg/lucas-kanade 10
+docker run --privileged -v ${PWD}/data:/data bjornborg/lucas-kanade 10
 # Adding additional params is possible, in this case: gridstep=8, k=128, sigma=0.05
-docker run -v ${PWD}/data:/data bjornborg/lucas-kanade 10 8 128 0.05
+docker run --privileged -v ${PWD}/data:/data bjornborg/lucas-kanade 10 8 128 0.05
 ```
 
 ### Pcaflow
 ```sh
 # Pca flow (default param values)
-docker run -v ${PWD}/data:/data bjornborg/pcaflow 10
+docker run --privileged -v ${PWD}/data:/data bjornborg/pcaflow 10
 ```
 
 ### Simple flow 
 ```sh
 # Simple flow (default param values) with 10 loops
-docker run -v ${PWD}/data:/data bjornborg/simpleflow 10
+docker run --privileged -v ${PWD}/data:/data bjornborg/simpleflow 10
 #or with additional params: layers=3, averaging_block_size=2, max_flow=4, sigma_dist=4.1, sigma_color=25.5, postprocess_window=18, sigma_dist_fix=55.0, sigma_color_fix=25.5, occ_thr=0.35, upscale_averaging_radius=18, upscale_sigma_dist=55.0, upscale_sigma_color=25.5, speed_up_thr=10.0
-docker run -v PWD}/data:/data bjornborg/farneback 10 3 2 4 4.1 25.5 18 55.0 25.5 0.35 18 55.0 25.5 10.0
+docker run --privileged -v PWD}/data:/data bjornborg/farneback 10 3 2 4 4.1 25.5 18 55.0 25.5 0.35 18 55.0 25.5 10.0
 ```
 
 ## Building docker images

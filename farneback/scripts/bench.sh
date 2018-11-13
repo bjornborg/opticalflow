@@ -27,7 +27,7 @@ fi
 
 mkdir -p ${resultPath}/flow
 mkdir -p ${resultPath}/colorflow
-echo '#elapsed,percent,systime,usrtime,elapsed' > ${resultPath}/time.csv
+echo '#elapsed time [seconds]' > ${resultPath}/time.csv
 
 for n in $(seq 1 ${1})
 do
@@ -37,7 +37,7 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --pyr_scale=${2:-0.5} --levels=${3:-3} --winsize=${4:-15} --iterations=${5:-3} --poly_n=${6:-5} --poly_sigma=${7:-1.2} 
+    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --pyr_scale=${2:-0.5} --levels=${3:-3} --winsize=${4:-15} --iterations=${5:-3} --poly_n=${6:-5} --poly_sigma=${7:-1.2} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
     /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
