@@ -1,4 +1,4 @@
-FROM bjornborg/cudadockeropencv4contrib:latest
+FROM bjornborg/cudaopencv4contrib:latest
 
 
 # Installing perf
