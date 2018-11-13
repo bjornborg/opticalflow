@@ -46,13 +46,13 @@ int32_t main(int32_t argc, char **argv)
   
 
   cv::UMat flowMat;
-  cv::Ptr<cv::optflow::DISOpticalFlow> dis; 
+  cv::Ptr<cv::DISOpticalFlow> dis; 
   if(presetStr.compare("ultrafast") == 0){
-    dis = cv::optflow::createOptFlow_DIS(cv::optflow::DISOpticalFlow::PRESET_ULTRAFAST);
+    dis = cv::DISOpticalFlow::create(cv::DISOpticalFlow::PRESET_ULTRAFAST);
   } else if(presetStr.compare("fast")== 0){
-    dis = cv::optflow::createOptFlow_DIS(cv::optflow::DISOpticalFlow::PRESET_FAST);
+    dis = cv::DISOpticalFlow::create(cv::DISOpticalFlow::PRESET_FAST);
   } else if(presetStr.compare("medium")== 0){
-    dis = cv::optflow::createOptFlow_DIS(cv::optflow::DISOpticalFlow::PRESET_MEDIUM);
+    dis = cv::DISOpticalFlow::create(cv::DISOpticalFlow::PRESET_MEDIUM);
   } else {
     std::cerr << "Invalid preset option" << std::endl;
     return -1;
@@ -60,7 +60,7 @@ int32_t main(int32_t argc, char **argv)
 
 
   dis->calc(uImageBefore, uImageAfter, flowMat);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
 
   return 0;
 }

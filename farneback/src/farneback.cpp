@@ -68,7 +68,7 @@ int32_t main(int32_t argc, char **argv)
 
   cv::Mat flowMat;
   cv::calcOpticalFlowFarneback(uImageBefore, uImageAfter, flowMat, pyr_scale, levels, winsize, iterations, poly_n, poly_sigma, 0);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
 
   return 0;
 }

@@ -96,7 +96,7 @@ int32_t main(int32_t argc, char **argv)
   
 
   cv::UMat flowMat;
-  cv::Ptr<cv::DualTVL1OpticalFlow> dualtlv1 = cv::createOptFlow_DualTVL1();
+  cv::Ptr<cv::optflow::DualTVL1OpticalFlow> dualtlv1 = cv::optflow::createOptFlow_DualTVL1();
   dualtlv1->setTau(tau);
   dualtlv1->setLambda(lambda);
   dualtlv1->setTheta(theta);
@@ -111,7 +111,7 @@ int32_t main(int32_t argc, char **argv)
   dualtlv1->setUseInitialFlow(useInitialFlow); 
 
   dualtlv1->calc(uImageBefore, uImageAfter, flowMat);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
 
   return 0;
 }

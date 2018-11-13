@@ -137,8 +137,9 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${resultCounter}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
-    /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
+    outputName=$(basename ${imageBefore} | sed 's/\.[^.]*$//')
+    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${outputName}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    /tmp/color_flow -quiet ${resultPath}/flow/${outputName}.flo ${resultPath}/colorflow/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
 done

@@ -44,7 +44,7 @@ int32_t main(int32_t argc, char **argv)
   cv::Ptr<cv::DenseOpticalFlow> pcaflow = cv::optflow::createOptFlow_PCAFlow();
 
   pcaflow->calc(uImageBefore, uImageAfter, flowMat);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
 
   return 0;
 }

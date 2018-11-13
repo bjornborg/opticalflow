@@ -32,8 +32,9 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
-    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo --gridstep=${2:-8} --k=${3:-128}  --sigma=${4:-0.05} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
-    /tmp/color_flow -quiet ${resultPath}/flow/${resultCounter}.flo ${resultPath}/colorflow/${resultCounter}.png > /dev/null
+    outputName=$(basename ${imageBefore} | sed 's/\.[^.]*$//')
+    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${outputName}.flo --gridstep=${2:-8} --k=${3:-128}  --sigma=${4:-0.05} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    /tmp/color_flow -quiet ${resultPath}/flow/${outputName}.flo ${resultPath}/colorflow/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
 done

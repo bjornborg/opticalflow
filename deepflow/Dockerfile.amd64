@@ -1,4 +1,4 @@
-FROM bjornborg/opencv4contrib:latest
+FROM bjornborg/cudadockeropencv4contrib:latest
 
 
 # Installing perf
@@ -54,14 +54,8 @@ RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     make && \
     cp color_flow /tmp
 
-RUN apt-get update && apt-get install -y time
-
 ADD scripts/bench.sh /tmp
 
-WORKDIR /tmp
-
 ENTRYPOINT ["/tmp/bench.sh"]
-
-WORKDIR /tmp
 
 

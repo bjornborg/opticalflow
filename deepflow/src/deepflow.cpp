@@ -45,7 +45,7 @@ int32_t main(int32_t argc, char **argv)
   cv::Ptr<cv::DenseOpticalFlow> deepflow = cv::optflow::createOptFlow_DeepFlow(); 
 
   deepflow->calc(uImageBefore, uImageAfter, flowMat);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
 
   return 0;
 }

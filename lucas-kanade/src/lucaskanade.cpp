@@ -40,7 +40,7 @@ int32_t main(int32_t argc, char **argv)
 
   cv::Mat flowMat;
   cv::optflow::calcOpticalFlowSparseToDense(uImageBefore, uImageAfter, flowMat, gridStep, k, sigma, true, 500.0f, 1.5f);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
   // std::cout << "Done" << std::endl;
 
   return 0;

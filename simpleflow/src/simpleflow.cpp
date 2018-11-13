@@ -100,7 +100,7 @@ int32_t main(int32_t argc, char **argv)
 
   cv::Mat flowMat;
   cv::optflow::calcOpticalFlowSF(uImageBefore, uImageAfter, flowMat, layers, averaging_block_size, max_flow, sigma_dist, sigma_color, postprocess_window, sigma_dist_fix, sigma_color_fix, occ_thr, upscale_averaging_radius, upscale_sigma_dist, upscale_sigma_color, speed_up_th);
-  cv::optflow::writeOpticalFlow(outputFloPath, flowMat);
+  cv::writeOpticalFlow(outputFloPath, flowMat);
 
   return 0;
 }
