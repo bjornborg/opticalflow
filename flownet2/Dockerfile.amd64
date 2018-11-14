@@ -64,6 +64,7 @@ RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     tar xvzf flownet2-models.tar.gz && \
     tar xvzf flownet2-models-kitti.tar.gz && \
     tar xvzf flownet2-models-sintel.tar.gz && \
+    mv FlowNet2-Sintel FlowNet2-CSS-Sintel && \
     rm -rf *.tar.gz && \
     cd .. && \
     make -j`nproc` && \

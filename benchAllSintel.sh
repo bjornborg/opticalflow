@@ -12,5 +12,5 @@ done
 if [[ $* == *-g* ]]; then
   echo "Using gpu on ${1}" 
   echo -e "Running flownet2"
-  docker run --runtime=nvidia --privileged -v ${1}:/data bjornborg/flownet2 -g 0 -n FlowNet2-Sintel ${2}
+  docker run --runtime=nvidia --privileged -v ${1}:/data bjornborg/flownet2 -g 0 -n FlowNet2-CSS-Sintel ${2}
 fi

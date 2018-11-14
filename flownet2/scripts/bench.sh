@@ -92,7 +92,7 @@ case "${NETWORK}" in
   "FlowNet2-SS")        ;;
   "FlowNet2-sss")       ;;
   "FlowNet2-KITTI")     ;;
-  "FlowNet2-Sintel")    ;;
+  "FlowNet2-CSS-Sintel")    ;;
   *) echo -e "Unknown network: ${NETWORK} (run with -h to print available networks)";
      fun__die;;
 esac
