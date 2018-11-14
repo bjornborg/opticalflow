@@ -1,5 +1,8 @@
 #!/bin/bash
 # $1 number of loops for time measurements
+echo "Installing perf tool specifically for your kernel"
+apt-get -qq update &&  apt-get -qq install -y \
+        linux-tools-`uname -r`
 
 algorithm='deepflow'
 
@@ -28,11 +31,15 @@ do
   paste /data/first_image.txt /data/second_image.txt | while IFS="$(printf '\t')" read -r imageBefore imageAfter
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
+    flowOutputPath=${dataPath}/results/${algorithm}/flow/$(dirname ${imageBefore})
+    colorFlowOutpuPath=${dataPath}/results/${algorithm}/colorflow/$(dirname ${imageBefore})
+    mkdir -p ${flowOutputPath}
+    mkdir -p ${colorFlowOutpuPath}
     # printf $imageBefore" "$imageAfter
     outputName=$(basename ${imageBefore} | sed 's/\.[^.]*$//')
-    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${outputName}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${flowOutputPath}/${outputName}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
     # /usr/bin/time -a -o ${resultPath}/time.csv -f "%E,%P,%S,%U,%e" /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${resultCounter}.flo
-    /tmp/color_flow -quiet ${resultPath}/flow/${outputName}.flo ${resultPath}/colorflow/${outputName}.png > /dev/null
+    /tmp/color_flow -quiet ${flowOutputPath}/${outputName}.flo ${colorFlowOutpuPath}/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
 done

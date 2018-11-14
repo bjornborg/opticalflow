@@ -9,6 +9,10 @@
 # $1 number of loops for time measurements
 
 
+echo "Installing perf tool specifically for your kernel"
+apt-get -qq update &&  apt-get -qq install -y \
+        linux-tools-`uname -r`
+
 ## Fail if any command fails (use "|| true" if a command is ok to fail)
 set -e
 ## Treat unset variables as error
@@ -137,9 +141,13 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
+    flowOutputPath=${dataPath}/results/${algorithm}/flow/$(dirname ${imageBefore})
+    colorFlowOutpuPath=${dataPath}/results/${algorithm}/colorflow/$(dirname ${imageBefore})
+    mkdir -p ${flowOutputPath}
+    mkdir -p ${colorFlowOutpuPath}
     outputName=$(basename ${imageBefore} | sed 's/\.[^.]*$//')
-    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${resultPath}/flow/${outputName}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
-    /tmp/color_flow -quiet ${resultPath}/flow/${outputName}.flo ${resultPath}/colorflow/${outputName}.png > /dev/null
+    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${flowOutputPath}/${outputName}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    /tmp/color_flow -quiet ${flowOutputPath}/${outputName}.flo ${colorFlowOutpuPath}/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
 done

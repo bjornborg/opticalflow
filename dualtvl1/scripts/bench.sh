@@ -11,9 +11,13 @@
 # $10 scaleStep=0.8
 # $11 gamma=0.0
 # $12 medianFiltering=5
+
+
+echo "Installing perf tool specifically for your kernel"
+apt-get -qq update &&  apt-get -qq install -y \
+        linux-tools-`uname -r`
+
 algorithm='dualtvl1'
-
-
 
 dataPath="/data"
 resultPath=${dataPath}"/results/"${algorithm}
@@ -41,9 +45,13 @@ do
   do
     echo -e "Data: $[${resultCounter} +1]/${nBeforeEntries}"
     # printf $imageBefore" "$imageAfter
+    flowOutputPath=${dataPath}/results/${algorithm}/flow/$(dirname ${imageBefore})
+    colorFlowOutpuPath=${dataPath}/results/${algorithm}/colorflow/$(dirname ${imageBefore})
+    mkdir -p ${flowOutputPath}
+    mkdir -p ${colorFlowOutpuPath}
     outputName=$(basename ${imageBefore} | sed 's/\.[^.]*$//')
-    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${resultPath}/flow/${outputName}.flo --tau=${2:-0.25} --lambda=${3:-0.15} --theta=${4:-0.3} --nscales=${5:-5} --warps=${6:-5} --epsilon=${7:-0.01} --innnerIterations=${8:-30} --outerIterations=${9:-10} --scaleStep=${10:-0.8} --gamma=${11:-0.0}0 --medianFiltering=${12:-5} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
-    /tmp/color_flow -quiet ${resultPath}/flow/${outputName}.flo ${resultPath}/colorflow/${outputName}.png > /dev/null
+    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${flowOutputPath}/${outputName}.flo --tau=${2:-0.25} --lambda=${3:-0.15} --theta=${4:-0.3} --nscales=${5:-5} --warps=${6:-5} --epsilon=${7:-0.01} --innnerIterations=${8:-30} --outerIterations=${9:-10} --scaleStep=${10:-0.8} --gamma=${11:-0.0}0 --medianFiltering=${12:-5} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    /tmp/color_flow -quiet ${flowOutputPath}/${outputName}.flo ${colorFlowOutpuPath}/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done
 done

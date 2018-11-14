@@ -1,2 +1,2 @@
-name_2.jpg
-name_3.jpg
+exampledatabase/name_2.jpg
+exampledatabase/name_3.jpg

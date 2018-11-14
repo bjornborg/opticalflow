@@ -2,10 +2,7 @@
 FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
 
 ## Put everything in some subfolder
-# Installing perf
 WORKDIR /tmp
-RUN apt-get update && apt-get install -y \
-        linux-tools-generic-hwe-16.04-edge 
 
 ## The build context contains some files which make the raw FlowNet2
 ## repo fit for Docker
@@ -16,12 +13,14 @@ COPY FN2_run-flownet-docker.py ./
 ## 2. Download and install CUDA driver
 ## 3. Download and build DispNet/FlowNet Caffe distro
 ## 4. Remove some now unused packages and clean up (for a smaller image)
-RUN apt-get update && \
+RUN  sed -i 's|http://a|http://se.a|g' /etc/apt/sources.list && \
+    apt-get update && \
     apt-get install -y --no-install-recommends \
         module-init-tools \
+        linux-tools-generic-hwe-16.04-edge \
         build-essential \
         ca-certificates \
-        wget \
+        # wget \
         git \
         libatlas-base-dev \
         libboost-all-dev \
@@ -40,17 +39,28 @@ RUN apt-get update && \
         python-protobuf \
         python-pillow \
         python-skimage \
-        axel \
-        unzip
+        unzip \
+        autoconf \
+        pkg-config \
+        gettext \
+        autopoint \
+        automake \
+        libssl-dev
+
+RUN git clone --depth=1 https://github.com/axel-download-accelerator/axel.git && \
+    cd axel && \
+    ./autogen.sh && \
+    ./configure && make && make install
+
 RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     cp ./FN2_Makefile.config ./flownet2/Makefile.config && \
     cp ./FN2_run-flownet-docker.py ./flownet2/scripts/run-flownet-docker.py && \
     cd flownet2 && \
     rm -rf .git && \
     cd models && \
-    wget -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-kitti.tar.gz && \
-    wget -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-sintel.tar.gz && \
-    wget -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models.tar.gz  && \
+    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-kitti.tar.gz && \
+    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-sintel.tar.gz && \
+    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models.tar.gz && \
     tar xvzf flownet2-models.tar.gz && \
     tar xvzf flownet2-models-kitti.tar.gz && \
     tar xvzf flownet2-models-sintel.tar.gz && \
@@ -59,7 +69,7 @@ RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     make -j`nproc` && \
     make -j`nproc` pycaffe 
 
-RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
+RUN axel -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     unzip flow-code.zip && \
     cd flow-code/imageLib && \
     make && \
@@ -71,9 +81,15 @@ RUN  apt-get remove -y \
         module-init-tools \
         build-essential \
         ca-certificates \
-        git \
-        wget \
-        axel && \
+        unzip \
+        autoconf \
+        pkg-config \
+        gettext \
+        autopoint \
+        libssl-dev \
+        git && \
+        # wget \
+        # axel && \
     apt-get autoremove -y && \
     apt-get autoclean -y && \
     rm -rf /var/lib/apt/lists/*
