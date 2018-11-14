@@ -77,22 +77,23 @@ RUN axel -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     make && \
     cp color_flow /tmp
 
-RUN  apt-get remove -y \
-        module-init-tools \
-        build-essential \
-        ca-certificates \
-        unzip \
-        autoconf \
-        pkg-config \
-        gettext \
-        autopoint \
-        libssl-dev \
-        git && \
+# RUN  rm -rf /var/lib/apt/lists/ 
+# apt-get remove -y \
+#         module-init-tools \
+#         build-essential \
+#         ca-certificates \
+#         unzip \
+#         autoconf \
+#         pkg-config \
+#         gettext \
+#         autopoint \
+#         libssl-dev \
+#         git && \
         # wget \
         # axel && \
-    apt-get autoremove -y && \
-    apt-get autoclean -y && \
-    rm -rf /var/lib/apt/lists/*
+    # apt-get autoremove -y && \
+    # apt-get autoclean -y && \
+    # rm -rf /var/lib/apt/lists/*
 
 ADD scripts/bench.sh /flownet2/
 ENTRYPOINT ["/flownet2/bench.sh"]
