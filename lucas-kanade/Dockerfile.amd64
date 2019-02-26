@@ -1,9 +1,9 @@
 FROM bjornborg/cudaopencv4contrib:latest
 # Installing perf
 WORKDIR /tmp
-RUN apt-get update && apt-get install -y \
-        linux-tools-common \
-        linux-tools-`uname -r`
+# RUN apt-get update && apt-get install -y \
+#         linux-tools-common \
+#         linux-tools-`uname -r`
         
 ADD src /opt/sources/src
 ADD CMakeLists.txt /opt/sources/

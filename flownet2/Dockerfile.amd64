@@ -13,9 +13,10 @@ COPY FN2_run-flownet-docker.py ./
 ## 2. Download and install CUDA driver
 ## 3. Download and build DispNet/FlowNet Caffe distro
 ## 4. Remove some now unused packages and clean up (for a smaller image)
-RUN  sed -i 's|http://a|http://se.a|g' /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
+RUN  sed -i -e 's/http:\/\/security/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list && \
+	sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list && \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
         module-init-tools \
         # linux-tools-generic-hwe-16.04-edge \
         build-essential \
