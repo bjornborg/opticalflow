@@ -5,7 +5,7 @@ projects=( deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow
 for optflow in "${projects[@]}"
 do 
   cd ${optflow}
-  docker build -f Dockerfile.amd64 -t bjornborg/${optflow}:latest .
-  docker push bjornborg/${optflow}:latest &
+  docker build -f Dockerfile.amd64 -t bjornborg/${optflow}:beta .
+  docker push bjornborg/${optflow}:beta &
   cd ..
 done
