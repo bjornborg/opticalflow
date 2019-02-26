@@ -35,7 +35,7 @@ RUN git clone --depth=1 https://github.com/opencv/opencv_contrib.git && \
       mkdir opencv/build && \
       cd opencv/build && \
       cmake -DWITH_CUDA=ON -DWITH_TBB=ON -DENABLE_FAST_MATH=1 -DCUDA_FAST_MATH=1 -DWITH_CUBLAS=1 -DOPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules .. && \
-      make -j8 && \
+      make -j$((`nproc`+5)) && \
       make install && \
       cd .. && \
       rm -rf opencv*

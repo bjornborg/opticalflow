@@ -9,9 +9,9 @@
 # $1 number of loops for time measurements
 
 
-echo "Installing perf tool specifically for your kernel"
-apt-get -qq update &&  apt-get -qq install -y \
-        linux-tools-`uname -r`
+# echo "Installing perf tool specifically for your kernel"
+# apt-get -qq update &&  apt-get -qq install -y \
+#         linux-tools-`uname -r`
 
 ## Fail if any command fails (use "|| true" if a command is ok to fail)
 set -e
@@ -150,7 +150,7 @@ do
     # echo ${dataPath}/${imageAfter}
     # echo ${flowOutputPath}/${outputName}.flo
     # python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${flowOutputPath}/${outputName}.flo
-    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${flowOutputPath}/${outputName}.flo 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    perf stat python /tmp/flownet2/scripts/run-flownet-docker.py --gpu ${GPU_IDX} ${WEIGHTS} ${DEPLOYPROTO} ${dataPath}/${imageBefore} ${dataPath}/${imageAfter} ${flowOutputPath}/${outputName}.flo 2>&1 >/dev/null | tail -n 6 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
     /tmp/color_flow -quiet ${flowOutputPath}/${outputName}.flo ${colorFlowOutpuPath}/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done

@@ -7,9 +7,9 @@
 # $6 poly_n
 # $7 poly_sigma
 
-echo "Installing perf tool specifically for your kernel"
-apt-get -qq update &&  apt-get -qq install -y \
-        linux-tools-`uname -r`
+# echo "Installing perf tool specifically for your kernel"
+# apt-get -qq update &&  apt-get -qq install -y \
+#         linux-tools-`uname -r`
 
 algorithm='farneback'
 
@@ -46,7 +46,7 @@ do
     mkdir -p ${flowOutputPath}
     mkdir -p ${colorFlowOutpuPath}
     outputName=$(basename ${imageBefore} | sed 's/\.[^.]*$//')
-    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${flowOutputPath}/${outputName}.flo --pyr_scale=${2:-0.5} --levels=${3:-3} --winsize=${4:-15} --iterations=${5:-3} --poly_n=${6:-5} --poly_sigma=${7:-1.2} 2>&1 >/dev/null | tail -n 2 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
+    perf stat /tmp/${algorithm} --image_before=${dataPath}/${imageBefore} --image_after=${dataPath}/${imageAfter} --output_flow=${flowOutputPath}/${outputName}.flo --pyr_scale=${2:-0.5} --levels=${3:-3} --winsize=${4:-15} --iterations=${5:-3} --poly_n=${6:-5} --poly_sigma=${7:-1.2} 2>&1 >/dev/null | tail -n 6 | head -n 1 | sed 's/ \+//' | sed 's/,/./' | sed 's/ seconds time elapsed//' >> ${resultPath}/time.csv
     /tmp/color_flow -quiet ${flowOutputPath}/${outputName}.flo ${colorFlowOutpuPath}/${outputName}.png > /dev/null
     resultCounter=$[$resultCounter +1]
   done

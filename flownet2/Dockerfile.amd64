@@ -17,7 +17,7 @@ RUN  sed -i 's|http://a|http://se.a|g' /etc/apt/sources.list && \
     apt-get update && \
     apt-get install -y --no-install-recommends \
         module-init-tools \
-        linux-tools-generic-hwe-16.04-edge \
+        # linux-tools-generic-hwe-16.04-edge \
         build-essential \
         ca-certificates \
         # wget \
@@ -67,8 +67,8 @@ RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     mv FlowNet2-Sintel FlowNet2-CSS-Sintel && \
     rm -rf *.tar.gz && \
     cd .. && \
-    make -j`nproc` && \
-    make -j`nproc` pycaffe 
+    make -j$((`nproc`+5)) && \
+    make -j$((`nproc`+5)) pycaffe 
 
 RUN axel -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     unzip flow-code.zip && \
