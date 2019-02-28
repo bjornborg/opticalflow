@@ -1,5 +1,82 @@
 ## Note: Our Caffe version does not work with CuDNN 6
-FROM nvidia/cuda:8.0-cudnn5-devel-ubuntu16.04
+# FROM nvidia/cuda:8.0-cudnn7-devel-ubuntu16.04
+
+# Runtime
+FROM ubuntu:18.04
+# LABEL maintainer "NVIDIA CORPORATION <cudatools@nvidia.com>"
+
+RUN sed -i -e 's/http:\/\/security/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list && \
+	sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list && \
+        apt-get update && apt-get install -y --no-install-recommends gnupg2 curl ca-certificates && \
+    curl -fsSL https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub | apt-key add - && \
+#     echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+        echo "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/cuda.list && \
+    echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1804/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list && \
+    apt-get purge --autoremove -y curl && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV CUDA_VERSION 8.0.61
+
+ENV CUDA_PKG_VERSION 8-0=$CUDA_VERSION-1
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cuda-nvrtc-$CUDA_PKG_VERSION \
+        cuda-nvgraph-$CUDA_PKG_VERSION \
+        cuda-cusolver-$CUDA_PKG_VERSION \
+        cuda-cublas-8-0=8.0.61.2-1 \
+        cuda-cufft-$CUDA_PKG_VERSION \
+        cuda-curand-$CUDA_PKG_VERSION \
+        cuda-cusparse-$CUDA_PKG_VERSION \
+        cuda-npp-$CUDA_PKG_VERSION \
+        cuda-cudart-$CUDA_PKG_VERSION && \
+    ln -s cuda-8.0 /usr/local/cuda && \
+    rm -rf /var/lib/apt/lists/*
+
+# nvidia-docker 1.0
+LABEL com.nvidia.volumes.needed="nvidia_driver"
+LABEL com.nvidia.cuda.version="${CUDA_VERSION}"
+
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+# nvidia-container-runtime
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES compute,utility
+ENV NVIDIA_REQUIRE_CUDA "cuda>=8.0"
+
+
+# cuda devel
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cuda-core-$CUDA_PKG_VERSION \
+        cuda-misc-headers-$CUDA_PKG_VERSION \
+        cuda-command-line-tools-$CUDA_PKG_VERSION \
+        cuda-nvrtc-dev-$CUDA_PKG_VERSION \
+        cuda-nvml-dev-$CUDA_PKG_VERSION \
+        cuda-nvgraph-dev-$CUDA_PKG_VERSION \
+        cuda-cusolver-dev-$CUDA_PKG_VERSION \
+        cuda-cublas-dev-8-0=8.0.61.2-1 \
+        cuda-cufft-dev-$CUDA_PKG_VERSION \
+        cuda-curand-dev-$CUDA_PKG_VERSION \
+        cuda-cusparse-dev-$CUDA_PKG_VERSION \
+        cuda-npp-dev-$CUDA_PKG_VERSION \
+        cuda-cudart-dev-$CUDA_PKG_VERSION \
+        cuda-driver-dev-$CUDA_PKG_VERSION && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs
+
+RUN echo "deb https://developer.download.nvidia.com/compute/machine-learning/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/nvidia-ml.list
+
+ENV CUDNN_VERSION 5.1.10
+LABEL com.nvidia.cudnn.version="${CUDNN_VERSION}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+            libcudnn5=$CUDNN_VERSION-1+cuda8.0 \
+            libcudnn5-dev=$CUDNN_VERSION-1+cuda8.0 && \
+    rm -rf /var/lib/apt/lists/*
+
 
 ## Put everything in some subfolder
 WORKDIR /tmp
@@ -9,19 +86,15 @@ WORKDIR /tmp
 COPY FN2_Makefile.config ./
 COPY FN2_run-flownet-docker.py ./
 
-## 1. Install packages
-## 2. Download and install CUDA driver
-## 3. Download and build DispNet/FlowNet Caffe distro
-## 4. Remove some now unused packages and clean up (for a smaller image)
-RUN  sed -i -e 's/http:\/\/security/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list && \
-	sed -i -e 's/http:\/\/archive/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirrors.txt/' /etc/apt/sources.list && \
-        apt-get update && \
+ENV TZ=Europe/Stockholm
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
+RUN  apt-get update && \
         apt-get install -y --no-install-recommends \
         module-init-tools \
-        # linux-tools-generic-hwe-16.04-edge \
         build-essential \
         ca-certificates \
-        # wget \
         git \
         libatlas-base-dev \
         libboost-all-dev \
@@ -30,7 +103,7 @@ RUN  sed -i -e 's/http:\/\/security/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirr
         libhdf5-serial-dev \
         libleveldb-dev \
         liblmdb-dev \
-        libopencv-dev \
+        # libopencv-dev \
         libprotobuf-dev \
         libsnappy-dev \
         protobuf-compiler \
@@ -46,12 +119,54 @@ RUN  sed -i -e 's/http:\/\/security/mirror:\/\/mirrors/' -e 's/\/ubuntu\//\/mirr
         gettext \
         autopoint \
         automake \
-        libssl-dev
+        # linux-tools-generic-hwe-16.04-edge \
+        libssl-dev \
+        # wget \
+        build-essential \
+        cmake \
+        git  \
+        libgtk2.0-dev \
+        pkg-config  \
+        libavcodec-dev \
+        libavformat-dev \
+        libswscale-dev \ 
+        python-dev \
+        python-numpy \
+        libtbb2  \
+        libtbb-dev \
+        libjpeg-dev \
+        libpng-dev  \
+        libtiff-dev  \
+        libdc1394-22-dev
+
+
+
+RUN rm -rf /usr/bin/perf
 
 RUN git clone --depth=1 https://github.com/axel-download-accelerator/axel.git && \
     cd axel && \
     ./autogen.sh && \
-    ./configure && make && make install
+    ./configure && make && make install && cd ../.. && rm -rf axel*
+
+RUN     axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-kitti.tar.gz && \
+    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-sintel.tar.gz && \
+    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models.tar.gz 
+
+
+
+RUN apt install -y gcc-5 g++-5 && \
+        update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 10 && \
+        update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 10 && \
+        update-alternatives --install /usr/bin/cc cc /usr/bin/gcc 30 && \
+        update-alternatives --set cc /usr/bin/gcc && \
+        update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++ 30 && \
+        update-alternatives --set c++ /usr/bin/g++
+
+RUN axel -q https://github.com/opencv/opencv/archive/2.4.13.6.tar.gz && \
+    tar xvzf  opencv-2.4.13.6.tar.gz  && \
+    cd opencv-2.4.13.6 && \
+    mkdir build && cd build && \
+    cmake .. && make -j$((`nproc`+5)) && make install && cd ../.. && rm -rf opencv*
 
 RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     cp ./FN2_Makefile.config ./flownet2/Makefile.config && \
@@ -59,9 +174,9 @@ RUN git clone --depth=1 https://github.com/lmb-freiburg/flownet2 && \
     cd flownet2 && \
     rm -rf .git && \
     cd models && \
-    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-kitti.tar.gz && \
-    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-sintel.tar.gz && \
-    axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models.tar.gz && \
+    mv /tmp/flownet2-models-kitti.tar.gz . && \
+    mv /tmp/flownet2-models-sintel.tar.gz . && \
+    mv /tmp/flownet2-models.tar.gz . && \
     tar xvzf flownet2-models.tar.gz && \
     tar xvzf flownet2-models-kitti.tar.gz && \
     tar xvzf flownet2-models-sintel.tar.gz && \
@@ -96,6 +211,8 @@ RUN axel -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     # apt-get autoremove -y && \
     # apt-get autoclean -y && \
     # rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y linux-tools-generic && \
+        rm -rf /usr/bin/perf
 
 ADD scripts/bench.sh /flownet2/
 ENTRYPOINT ["/flownet2/bench.sh"]
