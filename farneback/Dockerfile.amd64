@@ -1,10 +1,5 @@
-FROM bjornborg/cudaopencv4contrib:latest
-# Installing perf
-WORKDIR /tmp
-# RUN apt-get update && apt-get install -y \
-#         linux-tools-common \
-#         linux-tools-`uname -r`
-   
+ARG FROM_TAG=stable
+FROM bjornborg/cudaopencv4contrib:$FROM_TAG
 
 ADD src /opt/sources/src
 ADD CMakeLists.txt /opt/sources/
@@ -24,7 +19,6 @@ RUN wget -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     make && \
     cp color_flow /tmp
 
-# RUN apt-get update && apt-get install -y time
 
 ADD scripts/bench.sh /tmp
 

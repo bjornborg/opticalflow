@@ -92,52 +92,52 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN  apt-get update && \
         apt-get install -y --no-install-recommends \
-        module-init-tools \
+        # libopencv-dev \
+        # linux-tools-generic-hwe-16.04-edge \
+        # wget \
+        autoconf \
+        autoconf-archive \
+        automake \
+        autopoint \
+        bison \
         build-essential \
         ca-certificates \
+        cmake \
+        flex \
+        gettext \
+        git  \
         git \
         libatlas-base-dev \
+        libavcodec-dev \
+        libavformat-dev \
         libboost-all-dev \
+        libdc1394-22-dev \
         libgflags-dev \
         libgoogle-glog-dev \
+        libgtk2.0-dev \
         libhdf5-serial-dev \
+        libjpeg-dev \
         libleveldb-dev \
         liblmdb-dev \
-        # libopencv-dev \
+        libpng-dev  \
         libprotobuf-dev \
         libsnappy-dev \
+        libssl-dev \
+        libswscale-dev \ 
+        libtbb-dev \
+        libtbb2  \
+        libtiff-dev  \
+        module-init-tools \
+        pkg-config  \
+        pkg-config \
         protobuf-compiler \
         python-dev \
         python-numpy \
-        python-scipy \
-        python-protobuf \
         python-pillow \
+        python-protobuf \
+        python-scipy \
         python-skimage \
-        unzip \
-        autoconf \
-        pkg-config \
-        gettext \
-        autopoint \
-        automake \
-        # linux-tools-generic-hwe-16.04-edge \
-        libssl-dev \
-        # wget \
-        build-essential \
-        cmake \
-        git  \
-        libgtk2.0-dev \
-        pkg-config  \
-        libavcodec-dev \
-        libavformat-dev \
-        libswscale-dev \ 
-        python-dev \
-        python-numpy \
-        libtbb2  \
-        libtbb-dev \
-        libjpeg-dev \
-        libpng-dev  \
-        libtiff-dev  \
-        libdc1394-22-dev
+        unzip 
 
 
 
@@ -145,7 +145,7 @@ RUN rm -rf /usr/bin/perf
 
 RUN git clone --depth=1 https://github.com/axel-download-accelerator/axel.git && \
     cd axel && \
-    ./autogen.sh && \
+    autoreconf -fiv && \
     ./configure && make && make install && cd ../.. && rm -rf axel*
 
 RUN     axel -q https://lmb.informatik.uni-freiburg.de/resources/binaries/flownet2/flownet2-models-kitti.tar.gz && \
@@ -211,8 +211,8 @@ RUN axel -q http://vision.middlebury.edu/flow/code/flow-code.zip && \
     # apt-get autoremove -y && \
     # apt-get autoclean -y && \
     # rm -rf /var/lib/apt/lists/*
-RUN apt-get install -y linux-tools-generic && \
-        rm -rf /usr/bin/perf
+#RUN apt-get install -y linux-tools-generic && \
+#        rm -rf /usr/bin/perf
 
 ADD scripts/bench.sh /flownet2/
 ENTRYPOINT ["/flownet2/bench.sh"]

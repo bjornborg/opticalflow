@@ -3,6 +3,7 @@ workspace
 opticflow.code-workspace
 tmp
 results
+*.vscode
 
 
 # Prerequisites

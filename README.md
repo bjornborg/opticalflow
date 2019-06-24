@@ -1,7 +1,7 @@
 # Optical flow docker benchmark deployment
 
-This assumes that you have amd64 arch, docker-ce installed, and your user is a part of the docker groups. 
-Run easy sanity checks:
+This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker groups. 
+Run these sanity checks to insure compatibility:
 
 ```sh
 # Check if you are a part of docker groups
@@ -12,10 +12,10 @@ docker run hello-world
 docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
 ```
 
-If you are not a part of the docker group, simply pre-pend sudo command to all docker commands.
+If you are not a part of the docker group, simply pre-pend sudo command to all docker commands or run it as root.
 
 ## Data
-There are some example data in folder data/. The folder contains sequences of images data, two .txt files containing a list of before and after images (to estimate optical flow between).
+There are some example data in folder 'data/'. The folder contains sequences of images data, two .txt files containing a list of before and after images (to estimate optical flow between).
 ```sh
 # List the example data
 ls data/
@@ -26,6 +26,19 @@ cat data/first_image.txt
 ```
 If you want to run the benchmarks on a different data set, simply put the data in the data/ folder and update the .txt files with the names of the images files. Alternatively, replace ${PWD} variable when running the benchmark with the absolute path pointing to the data containing similar structure with two lists containing lists of images names.
 
+### Creating the first_image.txt and second_image.txt lists
+
+```sh
+cd data/
+ls exampledatabase/* > tmp.txt && head -n -1 tmp.txt > first_image.txt && rm tmp.txt
+ls exampledatabase/* > tmp.txt && tail -n +2 tmp.txt > second_image.txt && rm tmp.txt
+cd ..
+
+```
+
+
+## Running the estimators
+The benchmark results will output three things(.flo files, colored flo images and time.csv files) in the results folder located where the data set is (for example in data/results). For example:
 ```sh
 # Running lucas kanade OF algorithm on the example data
 docker run --privileged -v ${PWD}/data:/data bjornborg/lucas-kanade 1
@@ -33,10 +46,8 @@ docker run --privileged -v ${PWD}/data:/data bjornborg/lucas-kanade 1
 docker run --privileged -v /myDataPath/customdata:/data bjornborg/lucas-kanade 1
 ```
 
-The benchmark results will output three things(.flo files, colored flo images and time.csv files) in the results folder located where the data set is (for example in data/results).
 
-## List of single benchmark of different optic flow estimator algorithms
-To run a single benchmark looping 10 times use the following cases:
+To run a single benchmark looping 10 or 1000 times use the following cases:
 
 ### Deepflow
 ```sh
@@ -102,19 +113,28 @@ docker run --privileged -v ${PWD}/data:/data bjornborg/simpleflow 10
 docker run --privileged -v PWD}/data:/data bjornborg/farneback 10 3 2 4 4.1 25.5 18 55.0 25.5 0.35 18 55.0 25.5 10.0
 ```
 
-## Building docker images
-All results are generated in ${PWD}/data/results. It is root owned folder. Simply chown or copy the folder if you want to do postprocessing.
+All results are generated in '${PWD}/data/results'. It is root owned folder. Simply chown or copy the folder if you want to do postprocessing.
+
+## Building docker images on your local machine
 
 There are some included scripts for building and running the benchmarks. For building simply run
 ```sh
-./buildDocker.sh
+./buildDocker.sh customdockertag
 ```
 
 ## Running automated benchmarking script
-For running all benchmarks with 100 loops on standard (defaulted settings) run
+For running benchmarks for all algorithms with 100 loops on defaulted settings run
 ```sh
 # Looping 100 times in the data
 ./benchAll.sh ${PWD}/data 100
-#If you want to include GPU benchmark cases
-./benchAll.sh ${PWD}/data 100 -g
+
+# Using your custom docker build
+./benchAll.sh ${PWD}/data 100 customdockertag
+
+# Using my docker hub repo with stable tag
+./benchAll.sh ${PWD}/data 100 stable
+
+# If you want to include GPU benchmark cases on the Kitti data for example, run
+./benchAllKitti.sh ${PWD}/data 100 stable -g
 ```
+

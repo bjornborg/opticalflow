@@ -9,9 +9,12 @@
 # $1 number of loops for time measurements
 
 
-# echo "Installing perf tool specifically for your kernel"
-# apt-get -qq update &&  apt-get -qq install -y \
-#         linux-tools-`uname -r`
+echo "Installing perf tool specifically for your kernel"
+git clone --depth=1 https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git > /dev/null 2>&1
+cd linux/tools/perf
+make > /dev/null 2>&1
+cp perf /usr/bin
+cd -
 
 ## Fail if any command fails (use "|| true" if a command is ok to fail)
 set -e

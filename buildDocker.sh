@@ -1,11 +1,21 @@
 #!/bin/bash
 
-projects=( deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow simpleflow flownet2 )
+docker build -f Dockerfile.cudaopencv4contrib.amd64 -t bjornborg/cudaopencv4contrib:${1} .
+
+if [[ $* == *-p* ]]; then  
+  docker push bjornborg/cudaopencv4contrib:${1} &
+fi
+
+projects=( flownet2 deepflow dense-inverse-search dualtvl1 farneback lucas-kanade pcaflow simpleflow )
 
 for optflow in "${projects[@]}"
 do 
   cd ${optflow}
-  docker build -f Dockerfile.amd64 -t bjornborg/${optflow}:beta .
-  docker push bjornborg/${optflow}:beta &
+  docker build --build-arg FROM_TAG=${1} -f Dockerfile.amd64 -t bjornborg/${optflow}:${1} .
+  if [[ $* == *-p* ]]; then 
+    docker push bjornborg/${optflow}:${1} &
+  fi
   cd ..
 done
+wait
+echo "Build done"
