@@ -1,0 +1,36 @@
+FROM ubuntu:18.04
+ENV ARCH="x86_64"
+RUN apt-get update  && apt-get install -y \
+    build-essential \
+    bc \
+    libncurses-dev \
+    flex \
+    bison \ 
+    libssl-dev \
+    dkms \
+    libelf-dev \
+    wget
+
+RUN mkdir -p /kernel
+
+WORKDIR /kernel
+
+ADD .ubuntukernelconfig /.config
+
+RUN wget -q https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-4.14.126.tar.gz && \
+    wget -q https://mirrors.edge.kernel.org/pub/linux/kernel/projects/rt/4.14/patches-4.14.126-rt62.tar.gz && \
+    tar xf linux-4.14.126.tar.gz && \
+    tar xf patches-4.14.126-rt62.tar.gz && \
+    mv patches linux-4.14.126 && \
+    cd linux-4.14.126 && \
+    for p in `cat patches/series`; do patch -p1 < patches/$p; done && \
+    cp /.config . && \
+    make -j `getconf _NPROCESSORS_ONLN` deb-pkg LOCALVERSION=-custom-rt && \
+    cd /kernel && \
+    mkdir /root/deb-pkg && \
+    mv linux-headers-4.14.126-rt62-custom-rt_4.14.126-rt62-custom-rt-1_amd64.deb linux-image-4.14.126-rt62-custom-rt-dbg_4.14.126-rt62-custom-rt-1_amd64.deb linux-image-4.14.126-rt62-custom-rt_4.14.126-rt62-custom-rt-1_amd64.deb linux-libc-dev_4.14.126-rt62-custom-rt-1_amd64.deb /root/deb-pkg && \
+    cd / && \
+    rm -rf /kernel
+
+WORKDIR /root/deb-pkg
+

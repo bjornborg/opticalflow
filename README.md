@@ -1,7 +1,7 @@
 # Optical flow docker benchmark deployment
 
 This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker groups. 
-Run these sanity checks to insure compatibility:
+Run these sanity checks to ensure compatibility:
 
 ```sh
 # Check if you are a part of docker groups
@@ -134,7 +134,58 @@ For running benchmarks for all algorithms with 100 loops on defaulted settings r
 # Using my docker hub repo with stable tag
 ./benchAll.sh ${PWD}/data 100 stable
 
-# If you want to include GPU benchmark cases on the Kitti data for example, run
+# If you want to include GPU benchmark cases on the Kitti data, for example, run
 ./benchAllKitti.sh ${PWD}/data 100 stable -g
 ```
 
+# Real time kernel
+
+## Ubuntu 18.04
+For best consistency of results, install and use a real time linux kernel. There are many real time kernel versions and patches. Most recent versions should be compatible with docker. 
+
+Building the real-time kernel with docker
+```sh
+cd rt-kernel
+
+docker build -f Dockerfile.rtkernel.amd64 -t builtkernel .
+
+# Copying the debian packages to your host machine 
+id=$(docker create builtkernel) && docker cp $id:/root/deb-pkg deb-pkg && docker rm -v $id
+```
+
+
+Install the deb packages
+```sh
+cd deb-pkg
+# install custom kernel
+sudo pkg -i *.deb
+
+# update the grub
+sudo update-grub
+
+# reboot in to the rt kernel (during boot up, choose the advanced option and pick the rt-kernel we just built ) 
+sudo reboot
+```
+
+
+
+Make sure to install equivalent real-time nvidia-drivers as well (highly recommended nvidia dkms for easy installation).
+
+If you are using nvidia drivers, it is recommended to use dkms packages for handling driver compatibilities.
+```sh
+sudo apt install -y nvidia-dkms-390
+```
+
+After the reboot, use the following command
+```sh
+uname -a
+```
+and you should see 'preempt rt' which are the tags for real-time capabilities for the Linux kernel.
+
+## Archlinux
+
+See the aur package: https://aur.archlinux.org/pkgbase/linux-rt-lts/ and further install the nvidia-dkms package.
+
+## Linux in general
+
+For further reading and details to customize your linux kernel, see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/preemptrt_setup
