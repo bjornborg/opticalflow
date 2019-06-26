@@ -158,7 +158,7 @@ Install the deb packages
 ```sh
 cd deb-pkg
 # install custom kernel
-sudo pkg -i *.deb
+sudo dpkg -i *.deb
 
 # update the grub
 sudo update-grub
