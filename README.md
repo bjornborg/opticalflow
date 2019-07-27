@@ -1,3 +1,6 @@
+
+[![DOI](https://zenodo.org/badge/123254737.svg)](https://zenodo.org/badge/latestdoi/123254737)
+
 # Optical flow docker benchmark deployment
 
 This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker groups. 
