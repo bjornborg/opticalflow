@@ -3,19 +3,17 @@
 
 # Optical flow docker benchmark deployment
 
-This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker groups. 
-Run these sanity checks to ensure compatibility:
+This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker group. 
+First, run the following sanity checks to ensure compatibility:
 
 ```sh
-# Check if you are a part of docker groups
+# Check if you are a part of docker group
 groups
 # running docker hello world
 docker run hello-world
 # running nvidia docker hello world
 docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
 ```
-
-If you are not a part of the docker group, simply pre-pend sudo command to all docker commands or run it as root.
 
 ## Data
 There are some example data in folder 'data/'. The folder contains sequences of images data, two .txt files containing a list of before and after images (to estimate optical flow between).
@@ -42,7 +40,7 @@ cd ..
 
 
 ## Running the estimators
-The benchmark results will output three things(.flo files, colored flo images and time.csv files) in the results folder located where the data set is (for example in data/results). For example:
+The benchmark results will have three outputs (.flo files, colored flo images and time.csv files) in the results folder located where the data set is (for example in data/results). For example:
 ```sh
 # Running lucas kanade OF algorithm on the example data
 docker run --privileged -v ${PWD}/data:/data bjornborg/lucas-kanade 1
@@ -172,7 +170,6 @@ sudo reboot
 ```
 
 
-
 Make sure to install equivalent real-time nvidia-drivers as well (highly recommended nvidia dkms for easy installation).
 
 If you are using nvidia drivers, it is recommended to use dkms packages for handling driver compatibilities.
@@ -186,10 +183,10 @@ uname -a
 ```
 and you should see 'preempt rt' which are the tags for real-time capabilities for the Linux kernel.
 
-## Archlinux
+## Arch Linux
 
 See the aur package: https://aur.archlinux.org/pkgbase/linux-rt-lts/ and further install the nvidia-dkms package.
 
-## Linux in general
+## Further information
 
 For further reading and details to customize your linux kernel, see https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/preemptrt_setup
