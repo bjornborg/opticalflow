@@ -43,5 +43,6 @@ RUN git clone --depth=1 https://github.com/opencv/opencv_contrib.git && \
       make install && \
       cd .. && \
       rm -rf opencv*
-# Opencv 4 + cuda installed
+
+# OpenCV4 and CUDA installed
 
