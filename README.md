@@ -19,6 +19,7 @@ If you are not a part of the docker group, simply pre-pend sudo command to all d
 
 ## Data
 There are some example data in folder 'data/'. The folder contains sequences of images data, two .txt files containing a list of before and after images (to estimate optical flow between).
+
 ```sh
 # List the example data
 ls data/
