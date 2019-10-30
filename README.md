@@ -170,7 +170,7 @@ sudo reboot
 ```
 
 
-Make sure to install equivalent real-time nvidia-drivers as well (highly recommended nvidia dkms for easy installation).
+Make sure to install equivalent real-time nvidia-drivers as well (highly recommend nvidia dkms for easy installation).
 
 If you are using nvidia drivers, it is recommended to use dkms packages for handling driver compatibilities.
 ```sh
