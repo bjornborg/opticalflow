@@ -3,7 +3,7 @@
 
 # Optical flow docker benchmark deployment
 
-This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker group. For installation of Docker, visit https://docs.docker.com/get-started/ . If you want to run nvidia+docker, please visit https://github.com/NVIDIA/nvidia-docker
+This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker group. For installation of Docker, visit https://docs.docker.com/install/overview/ . If you want to run nvidia+docker, please visit https://github.com/NVIDIA/nvidia-docker
 First, run the following sanity checks to ensure compatibility:
 
 ```sh
