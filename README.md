@@ -3,7 +3,7 @@
 
 # Optical flow docker benchmark deployment
 
-This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker group. If you want to run nvidia+docker, please visit https://github.com/NVIDIA/nvidia-docker
+This assumes that you have amd64 architecture, docker-ce installed, and your user is a part of the docker group. For installation of Docker, visit https://docs.docker.com/get-started/ . If you want to run nvidia+docker, please visit https://github.com/NVIDIA/nvidia-docker
 First, run the following sanity checks to ensure compatibility:
 
 ```sh
@@ -12,7 +12,7 @@ groups
 # running docker hello world
 docker run hello-world
 # running nvidia docker hello world
-docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
+docker run --gpus all --rm nvidia/cuda:9.0-base nvidia-smi
 ```
 
 ## Data
@@ -90,7 +90,7 @@ docker run --privileged -v ${PWD}/data:/data bjornborg/farneback 10 0.5 3 15 3 5
 # FlowNet2 using gpu (id) 0 and KITTI pretrained network with 10 loops
 docker run --runtime=nvidia --cap-add SYS_ADMIN -v ${PWD}/data:/data bjornborg/flownet2 -g 0 -n FlowNet2-KITTI 10
 # To see other pretrained network run 
-docker run --runtime=nvidia --cap-add SYS_ADMIN -v ${PWD}/data:/data bjornborg/flownet2 -h
+docker run --gpus all --cap-add SYS_ADMIN -v ${PWD}/data:/data bjornborg/flownet2 -h
 ```
 
 ### Lucas-Kanade
