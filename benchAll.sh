@@ -16,6 +16,6 @@ done
 
 if [[ $* == *-g* ]]; then
   echo -e "Running flownet2"  
-  docker run --runtime=nvidia --cap-add SYS_ADMIN -v ${1}:/data bjornborg/flownet2:${3} -g 0 -n FlowNet2-KITTI ${2}
+  docker run --gpus all --cap-add SYS_ADMIN -v ${1}:/data bjornborg/flownet2:${3} -g 0 -n FlowNet2-KITTI ${2}
 fi
 
