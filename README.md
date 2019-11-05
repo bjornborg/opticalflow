@@ -88,7 +88,7 @@ docker run --privileged -v ${PWD}/data:/data bjornborg/farneback 10 0.5 3 15 3 5
 ### FlowNet2 (requires gpu)
 ```sh
 # FlowNet2 using gpu (id) 0 and KITTI pretrained network with 10 loops
-docker run --runtime=nvidia --cap-add SYS_ADMIN -v ${PWD}/data:/data bjornborg/flownet2 -g 0 -n FlowNet2-KITTI 10
+docker run --gpus all --cap-add SYS_ADMIN -v ${PWD}/data:/data bjornborg/flownet2 -g 0 -n FlowNet2-KITTI 10
 # To see other pretrained network run 
 docker run --gpus all --cap-add SYS_ADMIN -v ${PWD}/data:/data bjornborg/flownet2 -h
 ```
